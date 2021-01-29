@@ -71,7 +71,7 @@ Blockly.Mindustry['mind_read_var'] = block => {
     ['raw', temp],
     ['value', 'CELL'],
     ['value', 'INDEX'],
-  ), 0];
+  ) + '\n' + temp, 0];
 }
 
 Blockly.Blocks['mind_write'] = {
