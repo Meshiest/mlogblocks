@@ -67,11 +67,11 @@ Blockly.Blocks['mind_read_var'] = {
 
 Blockly.Mindustry['mind_read_var'] = block => {
   const temp = Blockly.Mindustry.temp();
-  return Blockly.Mindustry.easyAssemble(block, 'read',
+  return [Blockly.Mindustry.easyAssemble(block, 'read',
     ['raw', temp],
     ['value', 'CELL'],
     ['value', 'INDEX'],
-  );
+  ), 0];
 }
 
 Blockly.Blocks['mind_write'] = {
