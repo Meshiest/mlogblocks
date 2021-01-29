@@ -418,9 +418,9 @@ Blockly.Mindustry['mind_print_text'] = block => {
   let isBrace = false;
   for (let i = 0; i < quoteless.length; i++) {
     // start detecting a templated var - push the string in
-    if (quoteless[i] == '{' && !isBrace) {
+    if (quoteless[i] == '{' && quoteless[i-1] !== '\\' && !isBrace) {
       if (str.length > 0)
-        prints.push(`"${str}"`);
+        prints.push(`"${str.replace(/\\{/g, '{')}"`);
       str = '';
       isBrace = true;
     // stop detecting a templated var - push the var in
