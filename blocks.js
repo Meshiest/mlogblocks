@@ -204,7 +204,7 @@ Blockly.Blocks['mind_get_link_var'] = {
 Blockly.Mindustry['mind_get_link'] = block => {
   return Blockly.Mindustry.easyAssemble(block, 'getlink',
     ['field', 'DEST'],
-    ['value', 'VALUE'],
+    ['value', 'INDEX'],
   );
 };
 
@@ -213,7 +213,7 @@ Blockly.Mindustry['mind_get_link_var'] = block => {
   const temp = Blockly.Mindustry.temp();
   return [Blockly.Mindustry.easyAssemble(block, 'getlink',
     ['raw', temp],
-    ['value', 'VALUE'],
+    ['value', 'INDEX'],
   ) + '\n' + temp, 0];
 };
 
