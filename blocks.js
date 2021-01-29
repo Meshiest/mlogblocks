@@ -362,6 +362,31 @@ Blockly.Mindustry['mind_sensor'] = block =>
     ['value', 'UNIT'],
   );
 
+Blockly.Blocks['mind_sensor_val'] = {
+  init: function() {
+    this.appendValueInput('FIELD')
+        .appendField('sense')
+        .setCheck(null);
+    this.appendValueInput('UNIT')
+        .setCheck(null)
+        .appendField('in');
+    this.setInputsInline(true);
+    this.setOutput(true, null)
+    this.setStyle('block_world');
+    this.setTooltip('');
+    //this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.Mindustry['mind_sensor_val'] = block => {
+  const temp = Blockly.Mindustry.temp();
+  Blockly.Mindustry.easyAssemble(block, 'sensor',
+    ['raw', temp],
+    ['value', 'FIELD'],
+    ['value', 'UNIT'],
+  ) + '\n' + temp;
+}
+
 Blockly.Blocks['mind_print_text'] = {
   init: function() {
     this.appendValueInput('TEXT')
@@ -568,8 +593,9 @@ Blockly.Blocks['mind_unit_locate'] = {
     // iterate in reverse so i doesn't shift when we remove things
     for (let i = this.inputList.length-1; i >= 0; i--) {
       const input = this.inputList[i];
-      if (input.name)
+      if (input.name) {
         this.removeInput(input.name);
+      }
     }
 
     const type = LOCATE_TYPES[this.targetType];
@@ -589,7 +615,7 @@ Blockly.Blocks['mind_unit_locate'] = {
           .appendField('ore');
     }
 
-    const input = this.appendDummyInput()
+    const input = this.appendDummyInput('OUT')
         .appendField('outX')
         .appendField(new Blockly.FieldTextInput('outx'), 'OUT_X')
         .appendField('outY')
