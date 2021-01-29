@@ -358,8 +358,8 @@ Blockly.Blocks['mind_sensor'] = {
 Blockly.Mindustry['mind_sensor'] = block =>
   Blockly.Mindustry.easyAssemble(block, 'sensor',
     ['field', 'DEST'],
-    ['value', 'FIELD'],
     ['value', 'UNIT'],
+    ['value', 'FIELD'],
   );
 
 Blockly.Blocks['mind_sensor_val'] = {
@@ -382,8 +382,8 @@ Blockly.Mindustry['mind_sensor_val'] = block => {
   const temp = Blockly.Mindustry.temp();
   return [Blockly.Mindustry.easyAssemble(block, 'sensor',
     ['raw', temp],
-    ['value', 'FIELD'],
     ['value', 'UNIT'],
+    ['value', 'FIELD'],
   ) + '\n' + temp, 0];
 }
 
