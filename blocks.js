@@ -989,8 +989,8 @@ Blockly.Mindustry['loop_repeat_while'] = function(block) {
   Blockly.Mindustry._currLoop = oldLoop;
 
   return [].concat([
-    `ASM:LABEL __loop${label}`
-    `ASM:LABEL __loop${label}_continue`
+    `ASM:LABEL __loop${label}`,
+    `ASM:LABEL __loop${label}_continue`,
   ], condBefore, [
     `ASM:JUMP __loop${label}_end notEqual ${condVar} true`,
     body,
