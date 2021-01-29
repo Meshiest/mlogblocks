@@ -51,17 +51,17 @@ body {
   white-space: nowrap;
   pointer-events: none;
   color: white;
-  font-size: 20px;
+  font-size: 12px;
   padding: 2px 4px;
   border-radius: 4px;
 }
 
 .copied::before {
-  content: 'Copied to clipboard!';
+  content: 'Copied!';
   background-color: rgba(100, 255, 100, 0.8);
 }
 
 .errors::before {
-  content: 'Errors in code!';
+  content: 'Error!';
   background-color: rgba(255, 100, 100, 0.8);
 }
