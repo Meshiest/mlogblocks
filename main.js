@@ -50,10 +50,9 @@ function lighten(col, amt) {
 
 const lazyColor = (primary, secondary) => ({
   colourPrimary: primary,
-  colourSecondary: secondary || lighten(primary, 40),
+  colourSecondary: lighten(primary, 40),
   colourTertiary: primary,
 });
-
 
 function load() {
   // configure workspace
