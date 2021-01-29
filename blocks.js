@@ -188,11 +188,33 @@ Blockly.Blocks['mind_get_link'] = {
   }
 };
 
-Blockly.Mindustry['mind_get_link'] = function(block) {
+Blockly.Blocks['mind_get_link_var'] = {
+  init: function() {
+    this.appendValueInput('INDEX')
+        .appendField('link#')
+        .setCheck(null);
+    this.setInputsInline(false);
+    this.setOutput(true, null);
+    this.setStyle('block_world');
+    this.setTooltip('');
+    //this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.Mindustry['mind_get_link'] = block => {
   return Blockly.Mindustry.easyAssemble(block, 'getlink',
     ['field', 'DEST'],
     ['value', 'VALUE'],
   );
+};
+
+
+Blockly.Mindustry['mind_get_link_var'] = block => {
+  const temp = Blockly.Mindustry.temp();
+  return [Blockly.Mindustry.easyAssemble(block, 'getlink',
+    ['raw', temp],
+    ['value', 'VALUE'],
+  ) + '\n' + temp, 0];
 };
 
 
