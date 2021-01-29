@@ -607,7 +607,7 @@ Blockly.Blocks['mind_unit_locate'] = {
           ['spawn', 'spawn'],
           ['damaged', 'damaged'],
         ], this.typeHandler.bind(this)), 'TARGET');
-    this.setInputsInline(true);
+    this.setInputsInline(0);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setStyle('block_unit');
