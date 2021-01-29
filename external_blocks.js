@@ -11,7 +11,7 @@ Blockly.Mindustry['procedures_defreturn'] = block => {
     branch,
     ...returnBefore,
     `set __returnVar${func} ${returnVar}`,
-    'set @counter __popstack',
+    `set @counter __popstack${func}`,
   ];
 
   return lines.join('\n');
@@ -38,7 +38,7 @@ Blockly.Mindustry['procedures_callnoreturn'] = block => {
   });
 
   lines.push(
-    'op add __popstack @counter 1',
+    `op add __popstack${func} @counter 1`,
     `ASM:JUMP:ALWAYS __func_${func}`,
   )
 
@@ -69,7 +69,7 @@ Blockly.Mindustry['procedures_ifreturn'] = block => {
   }
 
   condBefore.push(
-    'set @counter __popstack',
+    `set @counter __popstack${Blockly.Mindustry._currFunc}`,
     `ASM:LABEL __ifreturnelse${label}`
   );
 
