@@ -50,7 +50,7 @@ Blockly.Mindustry['procedures_ifreturn'] = block => {
   const condCode = Blockly.Mindustry.valueToCode(block, 'CONDITION', 0);
   const [condVar, condBefore] = Blockly.Mindustry.extractVar(condCode);
 
-  const returnCode = Blockly.Mindustry.valueToCode(block, 'RETURN', 0);
+  const returnCode = Blockly.Mindustry.valueToCode(block, 'VALUE', 0);
   const [returnVar, returnBefore] = Blockly.Mindustry.extractVar(returnCode);
 
   const label = Blockly.Mindustry.temp();

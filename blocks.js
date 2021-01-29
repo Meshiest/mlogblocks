@@ -49,6 +49,31 @@ Blockly.Mindustry['mind_read'] = block =>
     ['value', 'INDEX'],
   );
 
+Blockly.Blocks['mind_read_var'] = {
+  init: function() {
+    this.appendValueInput('CELL')
+        .setCheck(null)
+        .appendField('read')
+    this.appendValueInput('INDEX')
+        .setCheck(null)
+        .appendField('at');
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.setStyle('block_memory');
+    this.setTooltip('');
+    //this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.Mindustry['mind_read_var'] = block => {
+  const temp = Blockly.Mindustry.temp();
+  return Blockly.Mindustry.easyAssemble(block, 'read',
+    ['raw', temp],
+    ['value', 'CELL'],
+    ['value', 'INDEX'],
+  );
+}
+
 Blockly.Blocks['mind_write'] = {
   init: function() {
     this.appendValueInput('SOURCE')
