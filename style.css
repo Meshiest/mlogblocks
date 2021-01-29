@@ -18,10 +18,11 @@ body {
 }
 
 .keybinds {
-  padding: 4px;
+  padding: 2px;
   color: white;
   font-family: monospace;
   font-size: 12px;
+  flex-flow: row wrap;
   display: flex;
 }
 
@@ -32,7 +33,7 @@ body {
 
 .keybinds div {
   padding: 4px 8px;
-  margin-right: 4px;
+  margin: 2px;
   border-radius: 2px;
   background-color: #222;
   position: relative;
