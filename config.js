@@ -21,6 +21,7 @@ const MINDUSTRY_SELF = [
 
 const MINDUSTRY_ACCESS = [
   'totalItems',
+  'enabled',
   'firstItem',
   'totalLiquids',
   'totalPower',

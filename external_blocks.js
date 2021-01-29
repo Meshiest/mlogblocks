@@ -1,5 +1,6 @@
 Blockly.Mindustry['procedures_defreturn'] = block => {
   const func = block.getFieldValue('NAME').replace(/ /g, '_');
+  Blockly.Mindustry._currFunc = func;
 
   const branch = Blockly.Mindustry.statementToCode(block, 'STACK');
   const returnCode = Blockly.Mindustry.valueToCode(block, 'RETURN', 0);
@@ -9,7 +10,7 @@ Blockly.Mindustry['procedures_defreturn'] = block => {
     `ASM:LABEL __func_${func}`,
     branch,
     ...returnBefore,
-    `set __returnVar ${returnVar}`,
+    `set __returnVar${func} ${returnVar}`,
     'set @counter __popstack',
   ];
 
@@ -20,7 +21,8 @@ Blockly.Mindustry['procedures_defnoreturn'] =
     Blockly.Mindustry['procedures_defreturn'];
 
 Blockly.Mindustry['procedures_callreturn'] = block => {
-  return [Blockly.Mindustry['procedures_callnoreturn'](block) + '\n__returnVar', 0];
+  const func = block.getFieldValue('NAME').replace(/ /g, '_');
+  return [Blockly.Mindustry['procedures_callnoreturn'](block) + '\n__returnVar' + func, 0];
 };
 
 Blockly.Mindustry['procedures_callnoreturn'] = block => {
@@ -62,7 +64,7 @@ Blockly.Mindustry['procedures_ifreturn'] = block => {
   if (block.hasReturnValue_) {
     condBefore.push(
       ...returnBefore,
-      `set __returnVar ${returnVar}`,
+      `set __returnVar${Blockly.Mindustry._currFunc} ${returnVar}`,
     );
   }
 
