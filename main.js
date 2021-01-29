@@ -229,6 +229,7 @@ document.addEventListener('paste', e => {
     if(confirm('Importing will clear workspace, are you sure?')) {
       e.preventDefault();
       loadCode(pasteData);
+      navigator.clipboard.writeText(' ' + pasteData);
     }
   }
 });
