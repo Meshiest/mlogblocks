@@ -96,6 +96,5 @@ Blockly.Mindustry.easyAssemble = (block, op, ...args) => {
 Blockly.Mindustry.scrub_ = function(block, code, opt_thisOnly) {
   const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
   const nextCode = opt_thisOnly ? '' : Blockly.Mindustry.blockToCode(nextBlock);
-  console.log('Returning', code + '\n' + nextCode)
   return code + '\n' + nextCode;
 };

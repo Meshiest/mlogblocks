@@ -400,10 +400,47 @@ Blockly.Blocks['mind_print_text'] = {
   }
 };
 
-Blockly.Mindustry['mind_print_text'] = block =>
-  Blockly.Mindustry.easyAssemble(block, 'print',
-    ['value', 'TEXT'],
-  );
+Blockly.Mindustry['mind_print_text'] = block => {
+  const aCode = Blockly.Mindustry.valueToCode(block, 'TEXT', 0);
+  const [rawText, textBefore] = Blockly.Mindustry.extractVar(aCode);
+
+  // check if this is a normal print or a variable print
+  if (textBefore.length > 0 || !rawText.match(/^".*{.*}.*"$/)) {
+    return textBefore.concat([
+      'print ' + rawText
+    ]).join('\n');
+  }
+
+  const prints = [];
+  const quoteless = rawText.slice(1, -1); // remove quotes from text
+
+  let str = '';
+  let isBrace = false;
+  for (let i = 0; i < quoteless.length; i++) {
+    // start detecting a templated var - push the string in
+    if (quoteless[i] == '{' && !isBrace) {
+      if (str.length > 0)
+        prints.push(`"${str}"`);
+      str = '';
+      isBrace = true;
+    // stop detecting a templated var - push the var in
+    } else if (quoteless[i] == '}' && isBrace) {
+      if (str.length > 0)
+        prints.push(str);
+      str = '';
+      isBrace = false;
+    } else {
+      // add a character to the string
+      str = str + quoteless[i];
+    }
+  }
+
+  // add last string if there is one
+  if (str.length > 0 && !isBrace) prints.push(`"${str}"`);
+
+  // build the prints
+  return prints.map(text => 'print ' + text).join('\n');
+}
 
 Blockly.Blocks['mind_end'] = {
   init: function() {

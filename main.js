@@ -1,3 +1,25 @@
+const $ = document.querySelector.bind(document);
+const $$ = (q, el) => Array.from((el || document).querySelectorAll(q));
+
+// debounce fn
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+    var context = this, args = arguments;
+    var later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+};
+
+const resetCopy = debounce(el => el.classList.remove('copied'), 1000);
+const resetErrors = debounce(el => el.classList.remove('errors'), 2000);
+
 const solarized = {
   base03: '#002b36',
   base02: '#073642',
@@ -155,16 +177,61 @@ function loadCode(code, clear=true) {
 document.addEventListener('keydown', async e => {
   if (e.code === 'KeyS' && e.ctrlKey) {
     e.preventDefault();
-    if (e.shiftKey) {
-      const code = Blockly.Mindustry.workspaceToCode(Blockly.mainWorkspace);
-      console.log(code);
-      await navigator.clipboard.writeText(code);
-      console.log('[save] copied code to clipboard');
+    if (!e.shiftKey) {
+      try {
+        const code = Blockly.Mindustry.workspaceToCode(Blockly.mainWorkspace);
+        console.log(code);
+        await navigator.clipboard.writeText(code);
+        console.log('[save] copied code to clipboard');
+        $('#copymlog').classList.add('copied');
+        resetCopy($('#copymlog'));
+      } catch (err) {
+        console.error(err);
+        $('#copymlog').classList.add('errors');
+        resetErrors($('#copymlog'));
+      }
     } else {
-      console.log('[save] saved code');
-      await navigator.clipboard.writeText(getCodeAsXml());
+      try {
+        console.log('[save] saved code');
+        await navigator.clipboard.writeText(getCodeAsXml());
+        $('#copyxml').classList.add('copied');
+        resetCopy($('#copyxml'));
+      } catch (err) {
+        $('#copyxml').classList.add('errors');
+        resetErrors($('#copyxml'));
+      }
+    }
+  }
+
+  if (e.code === 'KeyE' && e.ctrlKey) {
+    e.preventDefault();
+    const name = prompt('Enter a file name', localStorage.lastName || 'project');
+    if (typeof name === 'object') return;
+    localStorage.lastName = name;
+    $('#download').href = 'data:text/xml;charset=utf-8,' + encodeURIComponent(getCodeAsXml());
+    $('#download').download = name + '.xml';
+    $('#download').click();
+  }
+
+  if (e.code === 'Delete' && e.shiftKey && e.ctrlKey) {
+    e.preventDefault();
+    if(confirm('Do you really want to clear all your code?')) {
+      Blockly.mainWorkspace.clear()
+    }
+  }
+});
+
+// when you paste, render the image on the canvas
+document.addEventListener('paste', e => {
+  const pasteData = e.clipboardData.getData('Text');
+
+  if (pasteData.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
+    if(confirm('Importing will clear workspace, are you sure?')) {
+      e.preventDefault();
+      loadCode(pasteData);
     }
   }
 });
 
 document.addEventListener('DOMContentLoaded', load);
+/**/

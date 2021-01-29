@@ -1,6 +1,7 @@
 html, body {
   height: 100%;
   margin: 0;
+  background-color: black;
 }
 
 body {
@@ -10,4 +11,57 @@ body {
 
 #blocklyArea {
   flex: 1;
+}
+
+#download {
+  display: none;
+}
+
+.keybinds {
+  padding: 4px;
+  color: white;
+  font-family: monospace;
+  font-size: 12px;
+  display: flex;
+}
+
+.keybinds b {
+  color: #afa;
+  text-shadow: 0 0 4px #afa;
+}
+
+.keybinds div {
+  padding: 4px 8px;
+  margin-right: 4px;
+  border-radius: 2px;
+  background-color: #222;
+  position: relative;
+}
+
+.keybinds > div::before {
+  position: absolute;
+  color: white;
+  display: flex;
+  top: 0;
+  left: 50%;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  z-index: 100;
+  justify-content: center;
+  white-space: nowrap;
+  pointer-events: none;
+  color: white;
+  font-size: 20px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.copied::before {
+  content: 'Copied to clipboard!';
+  background-color: rgba(100, 255, 100, 0.8);
+}
+
+.errors::before {
+  content: 'Errors in code!';
+  background-color: rgba(255, 100, 100, 0.8);
 }
