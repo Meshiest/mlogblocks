@@ -467,20 +467,24 @@ Blockly.Mindustry['mind_print_text'] = block => {
   return prints.map(text => 'print ' + text).join('\n');
 }
 
-Blockly.Blocks['mind_end'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField('end');
-    this.setInputsInline(false);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setStyle('block_control');
-    this.setTooltip('');
-    //this.setHelpUrl('http://www.example.com/');
-  }
-};
+const makeAtom = (name, text, style, fn) => {
+  Blockly.Blocks[name] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField(text);
+      this.setInputsInline(false);
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setStyle(style);
+      this.setTooltip('');
+      //this.setHelpUrl('http://www.example.com/');
+    }
+  };
 
-Blockly.Mindustry['mind_end'] = block => 'end';
+  Blockly.Mindustry[name] = fn;
+}
+
+makeAtom('mind_end', 'end', 'block_control', block => 'end')
 
 Blockly.Blocks['mind_jump_label'] = {
   init: function() {
@@ -904,19 +908,29 @@ Blockly.Blocks['loop_repeat_i'] = {
   }
 };
 
+makeAtom('loop_break', 'break', 'block_control', block =>
+  `ASM:JUMP:ALWAYS __loop${Blockly.Mindustry._currLoop}_end`);
+makeAtom('loop_continue', 'continue', 'block_control', block =>
+  `ASM:JUMP:ALWAYS __loop${Blockly.Mindustry._currLoop}_continue`);
+
 Blockly.Mindustry['loop_repeat_i'] = function(block) {
+  const label = Blockly.Mindustry.temp();
+  const oldLoop = Blockly.Mindustry._currLoop;
+  Blockly.Mindustry._currLoop = label;
+
   const timesCode = Blockly.Mindustry.valueToCode(block, 'TIMES', 0);
   const [timesVar, timesBefore] = Blockly.Mindustry.extractVar(timesCode);
   const varName = block.getFieldValue('VAR');
-  const label = Blockly.Mindustry.temp();
 
   const body = Blockly.Mindustry.statementToCode(block, 'BODY');
+  Blockly.Mindustry._currLoop = oldLoop;
 
   return timesBefore.concat([
     `set ${varName} 0`,
     `ASM:LABEL __loop${label}`,
     `ASM:JUMP __loop${label}_end greaterThanEq ${varName} ${timesVar}`,
     body,
+    `ASM:LABEL __loop${label}_continue`,
     `op add ${varName} ${varName} 1`,
     `ASM:JUMP:ALWAYS __loop${label}`,
     `ASM:LABEL __loop${label}_end`,
@@ -941,15 +955,20 @@ Blockly.Blocks['loop_repeat_while'] = {
 };
 
 Blockly.Mindustry['loop_repeat_while'] = function(block) {
+  const label = Blockly.Mindustry.temp();
+  const oldLoop = Blockly.Mindustry._currLoop;
+  Blockly.Mindustry._currLoop = label;
+
   const condCode = Blockly.Mindustry.valueToCode(block, 'COND', 0);
   const [condVar, condBefore] = Blockly.Mindustry.extractVar(condCode);
 
-  const label = Blockly.Mindustry.temp();
 
   const body = Blockly.Mindustry.statementToCode(block, 'BODY');
+  Blockly.Mindustry._currLoop = oldLoop;
 
   return [].concat([
     `ASM:LABEL __loop${label}`
+    `ASM:LABEL __loop${label}_continue`
   ], condBefore, [
     `ASM:JUMP __loop${label}_end notEqual ${condVar} true`,
     body,
@@ -984,6 +1003,10 @@ Blockly.Blocks['loop_for'] = {
 };
 
 Blockly.Mindustry['loop_for'] = function(block) {
+  const label = Blockly.Mindustry.temp();
+  const oldLoop = Blockly.Mindustry._currLoop;
+  Blockly.Mindustry._currLoop = label;
+
   const initCode = Blockly.Mindustry.valueToCode(block, 'INIT', 0);
   const [initVar, initBefore] = Blockly.Mindustry.extractVar(initCode);
   const toCode = Blockly.Mindustry.valueToCode(block, 'TO', 0);
@@ -992,9 +1015,9 @@ Blockly.Mindustry['loop_for'] = function(block) {
   const [stepVar, stepBefore] = Blockly.Mindustry.extractVar(stepCode);
 
   const varName = block.getFieldValue('VAR');
-  const label = Blockly.Mindustry.temp();
 
   const body = Blockly.Mindustry.statementToCode(block, 'BODY');
+  Blockly.Mindustry._currLoop = oldLoop;
 
   return initBefore.concat([
     toBefore,
@@ -1003,6 +1026,7 @@ Blockly.Mindustry['loop_for'] = function(block) {
     `ASM:LABEL __loop${label}`,
     `ASM:JUMP __loop${label}_end greaterThanEq ${varName} ${toVar}`,
     body,
+    `ASM:LABEL __loop${label}_continue`,
     `op add ${varName} ${varName} ${stepVar}`,
     `ASM:JUMP:ALWAYS __loop${label}`,
     `ASM:LABEL __loop${label}_end`,

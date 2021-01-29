@@ -151,9 +151,10 @@ function load() {
     Blockly.Events.BLOCK_CHANGE,
     Blockly.Events.BLOCK_MOVE,
   ];
+  const autosave = debounce(() => localStorage.autosave = getCodeAsXml(), 500);
   workspace.addChangeListener(e => {
     if (saveInducingEvents.includes(e.type)) {
-      localStorage.autosave = getCodeAsXml()
+      autosave();
     }
   });
 

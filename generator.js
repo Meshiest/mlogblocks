@@ -14,6 +14,11 @@ Blockly.Mindustry.finish = code => {
   const lines = code.split('\n').map(l => l.trim()).filter(l => l.length);
 
   // TODO: compiler optimizations can go here
+  // - functions only invoked once can be spliced into the function call
+  // - functions never invoked can be removed
+  // - op <cond> that immediately go into a jump can be put in the jump
+  // - set temp followed by another set with the same var can be collapsed
+  //
   // scan labels from lines
   const labels = {};
   for (let i = 0; i < lines.length; i++) {

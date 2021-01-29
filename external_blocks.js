@@ -1,10 +1,14 @@
 Blockly.Mindustry['procedures_defreturn'] = block => {
   const func = block.getFieldValue('NAME').replace(/ /g, '_');
+
+  const oldFunc = Blockly.Mindustry._currFunc;
   Blockly.Mindustry._currFunc = func;
 
   const branch = Blockly.Mindustry.statementToCode(block, 'STACK');
   const returnCode = Blockly.Mindustry.valueToCode(block, 'RETURN', 0);
   const [returnVar, returnBefore] = Blockly.Mindustry.extractVar(returnCode);
+
+  Blockly.Mindustry._currFunc = oldFunc;
 
   const lines = [
     `ASM:LABEL __func_${func}`,
