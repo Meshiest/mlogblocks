@@ -174,8 +174,11 @@ function loadCode(code, clear=true) {
   Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xml);
 }
 
+let shiftDown = false;
+
 // keybinds
 document.addEventListener('keydown', async e => {
+  shiftDown = e.shiftKey;
   if (e.code === 'KeyS' && e.ctrlKey) {
     e.preventDefault();
     if (!e.shiftKey) {
@@ -222,14 +225,18 @@ document.addEventListener('keydown', async e => {
   }
 });
 
+document.addEventListener('keyup', e => {
+  shiftDown = e.shiftKey;
+});
+
 // when you paste, render the image on the canvas
 document.addEventListener('paste', e => {
   const pasteData = e.clipboardData.getData('Text');
 
   if (pasteData.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
-    if(confirm('Importing will clear workspace, are you sure?')) {
+    if(shiftDown || confirm('Importing will clear workspace, are you sure?')) {
       e.preventDefault();
-      loadCode(pasteData);
+      loadCode(pasteData, !shiftDown);
       navigator.clipboard.writeText(' ' + pasteData);
     }
   }
