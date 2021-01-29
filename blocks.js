@@ -580,7 +580,7 @@ Blockly.Blocks['mind_unit_radar'] = {
 };
 
 Blockly.Mindustry['mind_unit_radar'] = block =>
-  Blockly.Mindustry.easyAssemble(block, 'radar',
+  Blockly.Mindustry.easyAssemble(block, 'uradar',
     ['field', 'target1'],
     ['field', 'target2'],
     ['field', 'target3'],
