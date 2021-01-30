@@ -224,7 +224,7 @@ document.addEventListener('keydown', async e => {
     }
   }
 
-  if (!Blockly.selected) {
+  if (!Blockly.selected && !workspace.keyboardAccessibilityMode) {
     for (let i = 0; i < 7; i++) {
       if (e.key === i + 1 + '') {
         workspace.getToolbox().selectItemByPosition(i);
