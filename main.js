@@ -177,12 +177,13 @@ let shiftDown = false;
 
 // keybinds
 document.addEventListener('keydown', async e => {
+  const workspace = Blockly.mainWorkspace;
   shiftDown = e.shiftKey;
   if (e.code === 'KeyS' && e.ctrlKey) {
     e.preventDefault();
     if (!e.shiftKey) {
       try {
-        const code = Blockly.Mindustry.workspaceToCode(Blockly.mainWorkspace);
+        const code = Blockly.Mindustry.workspaceToCode(workspace);
         console.log(code);
         await navigator.clipboard.writeText(code);
         console.log('[save] copied code to clipboard');
@@ -219,7 +220,15 @@ document.addEventListener('keydown', async e => {
   if (e.code === 'Delete' && e.shiftKey && e.ctrlKey) {
     e.preventDefault();
     if(confirm('Do you really want to clear all your code?')) {
-      Blockly.mainWorkspace.clear()
+      workspace.clear()
+    }
+  }
+
+  if (!Blockly.selected) {
+    for (let i = 0; i < 7; i++) {
+      if (e.key === i + 1 + '') {
+        workspace.getToolbox().selectItemByPosition(i);
+      }
     }
   }
 });
@@ -232,7 +241,7 @@ document.addEventListener('keyup', e => {
 document.addEventListener('paste', e => {
   const pasteData = e.clipboardData.getData('Text');
 
-  if (pasteData.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
+  if (!Blockly.selected && pasteData.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
     if(shiftDown || confirm('Importing will clear workspace, are you sure?')) {
       e.preventDefault();
       loadCode(pasteData, !shiftDown);

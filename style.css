@@ -7,6 +7,7 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #blocklyArea {
@@ -24,6 +25,7 @@ body {
   font-size: 12px;
   flex-flow: row wrap;
   display: flex;
+  user-select: none;
 }
 
 .keybinds b {
@@ -31,15 +33,24 @@ body {
   text-shadow: 0 0 4px #afa;
 }
 
-.keybinds div {
-  padding: 4px 8px;
+.keybinds a, .keybinds a:visited {
+  color: #aaf;
+  text-shadow: 0 0 4px #aaf;
+}
+
+.keybinds .bind {
+  padding: 0 8px;
+  height: 20px;
   margin: 2px;
   border-radius: 2px;
   background-color: #222;
+  display: flex;
+  align-items: center;
   position: relative;
+  white-space: pre-wrap;
 }
 
-.keybinds > div::before {
+.copied::before, .errors::before {
   position: absolute;
   color: white;
   display: flex;
@@ -65,4 +76,36 @@ body {
 .errors::before {
   content: 'Error!';
   background-color: rgba(255, 100, 100, 0.8);
+}
+
+.more-container {
+  position: relative;
+  overflow: visible;
+  height: 20px;
+  z-index: 100;
+}
+
+.more-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  height: 20px;
+  margin: 2px;
+  border-radius: 2px;
+  background-color: #444;
+  color: #ddd;
+  font-weight: bold;
+}
+
+.more-container:hover .more {
+  transform: translateY(calc(20px - 100%));
+}
+
+.more-container .bind {
+  display: none;
+}
+
+.more-container:hover .bind {
+  display: flex;
 }
