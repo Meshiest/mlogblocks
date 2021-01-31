@@ -42,7 +42,10 @@ Blockly.Mindustry['procedures_callnoreturn'] = block => {
   });
 
   lines.push(
-    `op add __popstack${func} @counter 1`,
+    // don't update the pop pointer in a recursive function
+    Blockly.Mindustry._currFunc === func
+      ? ''
+      : `op add __popstack${func} @counter 1`,
     `ASM:JUMP:ALWAYS __func_${func}`,
   )
 
