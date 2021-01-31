@@ -98,7 +98,8 @@ const MINDUSTRY_BLOCKS = {
   ],
 
   turrets: [
-    'duo', 'scatter', 'scorch', 'hail', 'arc', 'wave', 'lancer', 'swarmer', 'salvo', 'fuse', 'ripple', 'cyclone', 'foreshadow', 'spectre', 'meltdown', 'segment', 'parallax', 'tsunami'],
+    'duo', 'scatter', 'scorch', 'hail', 'arc', 'wave', 'lancer', 'swarmer', 'salvo', 'fuse', 'ripple', 'cyclone', 'foreshadow', 'spectre', 'meltdown', 'segment', 'parallax', 'tsunami'
+  ],
 
   units: [
     'command-center',

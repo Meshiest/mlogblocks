@@ -629,7 +629,7 @@ Blockly.Mindustry['mind_unit_radar'] = block =>
     ['field', 'target2'],
     ['field', 'target3'],
     ['field', 'SORT'],
-    ['raw', '1'],
+    ['raw', '0'],
     ['field', 'ORDER'],
     ['field', 'DEST'],
   );
