@@ -190,6 +190,24 @@ const MINDUSTRY_DRAW_OPS = {
   image: ['x', 'y', 'image', 'size', 'rotation'],
 };
 
+const MINDUSTRY_JUMP_OPS = [
+  ['==', 'equal'],
+  ['not', 'notEqual'],
+  ['<', 'lessThan'],
+  ['<=', 'lessThanEq'],
+  ['>', 'greaterThan'],
+  ['>=', 'greaterThanEq'],
+];
+
+const JUMPABLE_OPS = [
+  'equal',
+  'notEqual',
+  'lessThan',
+  'lessThanEq',
+  'greaterThan',
+  'greaterThanEq',
+];
+
 const MINDUSTRY_BINARY_OPS = [
   ['+', 'add'],
   ['-', 'sub'],

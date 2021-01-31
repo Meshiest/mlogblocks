@@ -558,14 +558,7 @@ Blockly.Blocks['mind_jump_cond'] = {
         .appendField('if');
     this.appendValueInput('ARG_B')
         .setCheck(null)
-        .appendField(new Blockly.FieldDropdown([
-            ['==', 'equal'],
-            ['not', 'notEqual'],
-            ['<', 'lessThan'],
-            ['<=', 'lessThanEq'],
-            ['>', 'greaterThan'],
-            ['>=', 'greaterThanEq'],
-        ]), 'COND');
+        .appendField(new Blockly.FieldDropdown(MINDUSTRY_JUMP_OPS), 'COND');
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

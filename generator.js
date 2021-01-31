@@ -20,6 +20,34 @@ Blockly.Mindustry.finish = code => {
   // - set temp followed by another set with the same var can be collapsed
   //
   // scan labels from lines
+
+  // optimize out redundant instructions
+  let reduced = 0;
+  for (let i = 1; i < lines.length; i++) {
+    // cut out needless ops before a jump
+    if (lines[i].startsWith('ASM:JUMP ') && lines[i-1].startsWith('op ')) {
+      const prevLine = lines[i - 1].match(/^op (?<op>equal|notEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/);
+      const curLine = lines[i].match(/^ASM:JUMP (?<label>[^ ]+) notEqual (?<tempVar>_temp\d+) false$/);
+      if (curLine && prevLine && curLine.groups.tempVar === prevLine.groups.tempVar) {
+        lines[i] = `ASM:JUMP ${curLine.groups.label} ${prevLine.groups.op} ${prevLine.groups.rest}`;
+        lines.splice(i-1, 1);
+        reduced ++;
+      }
+
+    // cut out sets with a temp when the temp was set the line before
+    } else if (lines[i].startsWith('set ') && lines[i-1].startsWith('op ')) {
+      const prevLine = lines[i - 1].match(/^op (?<op>\w+) (?<tempVar>_temp\d+) (?<rest>.+)/);
+      const curLine = lines[i].match(/^set (?<var>.+) (?<tempVar>_temp\d+)$/);
+      if (curLine && prevLine && curLine.groups.tempVar === prevLine.groups.tempVar) {
+        lines[i] = `op ${prevLine.groups.op} ${curLine.groups.var} ${prevLine.groups.rest}`;
+        lines.splice(i-1, 1);
+        reduced ++;
+      }
+    }
+  }
+
+  console.debug('[asm] optimized out', reduced, 'lines');
+
   const labels = {};
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].startsWith('ASM:LABEL')) {
@@ -53,6 +81,8 @@ Blockly.Mindustry.finish = code => {
       lines.splice(i, 1, newLine);
     }
   }
+
+  console.debug('[asm] compiled', lines.length, 'lines');
 
   return lines.join('\n') + '\n';
 };
