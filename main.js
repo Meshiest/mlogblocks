@@ -158,6 +158,11 @@ function load() {
   });
 
   loadCode(localStorage.autosave);
+
+  $('#copymlogBtn').addEventListener('click', clickCopy);
+  $('#copyxmlBtn').addEventListener('click', clickSave);
+  $('#exportBtn').addEventListener('click', clickExport);
+  $('#clearBtn').addEventListener('click', clickClear);
 }
 
 function getCodeAsXml() {
@@ -182,46 +187,20 @@ document.addEventListener('keydown', async e => {
   if (e.code === 'KeyS' && e.ctrlKey) {
     e.preventDefault();
     if (!e.shiftKey) {
-      try {
-        const code = Blockly.Mindustry.workspaceToCode(workspace);
-        console.log(code);
-        await navigator.clipboard.writeText(code);
-        console.log('[save] copied code to clipboard');
-        $('#copymlog').classList.add('copied');
-        resetCopy($('#copymlog'));
-      } catch (err) {
-        console.error(err);
-        $('#copymlog').classList.add('errors');
-        resetErrors($('#copymlog'));
-      }
+      clickCopy();
     } else {
-      try {
-        console.log('[save] saved code');
-        await navigator.clipboard.writeText(getCodeAsXml());
-        $('#copyxml').classList.add('copied');
-        resetCopy($('#copyxml'));
-      } catch (err) {
-        $('#copyxml').classList.add('errors');
-        resetErrors($('#copyxml'));
-      }
+      clickSave();
     }
   }
 
   if (e.code === 'KeyE' && e.ctrlKey) {
     e.preventDefault();
-    const name = prompt('Enter a file name', localStorage.lastName || 'project');
-    if (typeof name === 'object') return;
-    localStorage.lastName = name;
-    $('#download').href = 'data:text/xml;charset=utf-8,' + encodeURIComponent(getCodeAsXml());
-    $('#download').download = name + '.xml';
-    $('#download').click();
+    clickExport();
   }
 
   if (e.code === 'Delete' && e.shiftKey && e.ctrlKey) {
     e.preventDefault();
-    if(confirm('Do you really want to clear all your code?')) {
-      workspace.clear()
-    }
+    clickClear();
   }
 
   if (!Blockly.selected && !workspace.keyboardAccessibilityMode) {
@@ -236,6 +215,50 @@ document.addEventListener('keydown', async e => {
 document.addEventListener('keyup', e => {
   shiftDown = e.shiftKey;
 });
+
+async function clickCopy() {
+  const workspace = Blockly.mainWorkspace;
+  try {
+    const code = Blockly.Mindustry.workspaceToCode(workspace);
+    console.log(code);
+    await navigator.clipboard.writeText(code);
+    console.log('[save] copied code to clipboard');
+    $('#copymlogBtn').classList.add('copied');
+    resetCopy($('#copymlogBtn'));
+  } catch (err) {
+    console.error(err);
+    $('#copymlogBtn').classList.add('errors');
+    resetErrors($('#copymlogBtn'));
+  }
+}
+
+async function clickSave() {
+  try {
+    console.log('[save] saved code');
+    await navigator.clipboard.writeText(getCodeAsXml());
+    $('#copyxmlBtn').classList.add('copied');
+    resetCopy($('#copyxmlBtn'));
+  } catch (err) {
+    $('#copyxmlBtn').classList.add('errors');
+    resetErrors($('#copyxmlBtn'));
+  }
+}
+
+function clickExport() {
+  const name = prompt('Enter a file name', localStorage.lastName || 'project');
+  if (typeof name === 'object') return;
+  localStorage.lastName = name;
+  $('#download').href = 'data:text/xml;charset=utf-8,' + encodeURIComponent(getCodeAsXml());
+  $('#download').download = name + '.xml';
+  $('#download').click();
+}
+
+function clickClear() {
+  const workspace = Blockly.mainWorkspace;
+  if(confirm('Do you really want to clear all your code?')) {
+    workspace.clear()
+  }
+}
 
 // when you paste, render the image on the canvas
 document.addEventListener('paste', e => {

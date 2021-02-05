@@ -2,6 +2,12 @@
 <html>
 <head>
   <title>mlog blocks</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Mindustry Logic Code Generator from Blocks">
+  <meta name="keywords" content="mlog,mindustry,logic,scratch,blockly,python,programming,processor">
+  <meta name="author" content="cake">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" type="text/css" href="style.css">
   <script src="lib/blockly_compressed.js"></script>
   <script src="lib/blocks_compressed.js"></script>
@@ -18,25 +24,25 @@
   </div>
   <div class="keybinds">
     <a id="download"></a>
-    <div class="bind" id="copymlog"><code>Ctrl+S</code> - <b>copy mlog</b></div>
+    <div class="bind button" id="copymlogBtn"><code>Ctrl+S</code> - <b>copy mlog</b></div>
     <div class="more-container">
       <div class="more">
         <div class="more-header">more keybinds</div>
-        <div class="bind" id="copyxml"><code>Ctrl+Shift+S</code> - <b>copy xml</b></div>
+        <div class="bind button" id="copyxmlBtn"><code>Ctrl+Shift+S</code> - <b>copy xml</b></div>
         <div class="bind"><code>Ctrl+V</code> - <b>import xml from clipboard</b></div>
         <div class="bind"><code>Ctrl+Shift+V</code> - <b>import xml and not clear</b></div>
-        <div class="bind"><code>Ctrl+E</code> - <b>export</b></div>
-        <div class="bind"><code>Ctrl+Shift+Del</code> - <b>clear workspace</b></div>
+        <div class="bind button" id="exportBtn"><code>Ctrl+E</code> - <b>export</b></div>
+        <div class="bind button" id="clearBtn"><code>Ctrl+Shift+Del</code> - <b>clear workspace</b></div>
         <div class="bind"><code>Ctrl+Shift+K</code> - <b>toggle <a href="https://developers.google.com/blockly/guides/configure/web/keyboard-nav#using_keyboard_navigation" tabindex="-1" target="_blank" rel="noopener noreferrer">keyboard navigation</a></b></div>
         <div class="bind"><code>1-7</code> - <b>open toolbox category</b></div>
       </div>
     </div>
     <div class="more-container">
       <div class="more">
-        <div class="more-header">notes and troubleshooting</div>
-        <div class="bind"><u>note</u>: only <b>tail recursion</b> works (return call). no regular recursion</div>
+        <div class="more-header">notes and help</div>
+        <div class="bind"><u>note</u>: only <b>tail recursion</b> works.</div>
         <div class="bind"><u>note</u>: code is run from the <b>top left</b></div>
-        <div class="bind"><u>note</u>: code <b>without an end</b> may have undefined behavior</div>
+        <div class="bind"><u>note</u>: code <b>without an end</b> may break</div>
       </div>
     </div>
   </div>

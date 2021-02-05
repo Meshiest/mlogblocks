@@ -47,7 +47,17 @@ body {
   display: flex;
   align-items: center;
   position: relative;
-  white-space: pre-wrap;
+  white-space: pre;
+}
+
+.bind.button {
+  cursor: pointer;
+}
+.bind.button:hover {
+  background-color: #444;
+}
+.bind.button:active {
+  background-color: #666;
 }
 
 .copied::before, .errors::before {
@@ -82,6 +92,7 @@ body {
   position: relative;
   overflow: visible;
   height: 20px;
+  margin: 0 2px;
   z-index: 100;
 }
 
@@ -91,7 +102,7 @@ body {
   justify-content: center;
   padding: 0 8px;
   height: 20px;
-  margin: 2px;
+  margin: 2px 0;
   border-radius: 2px;
   background-color: #444;
   color: #ddd;
@@ -100,10 +111,12 @@ body {
 
 .more-container:hover .more {
   transform: translateY(calc(20px - 100%));
+  background-color: #000;
 }
 
 .more-container .bind {
   display: none;
+  margin: 2px 0;
 }
 
 .more-container:hover .bind {
