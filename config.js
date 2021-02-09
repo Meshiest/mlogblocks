@@ -43,6 +43,7 @@ const MINDUSTRY_ACCESS = [
   'y',
   'shootX',
   'shootY',
+  'timescale',
   'range',
   'shooting',
   'mineX',
@@ -238,6 +239,10 @@ const MINDUSTRY_BINARY_OPS = [
 
   ['atan2', 'atan2'],
   ['dst', 'dst'],
+  /*//soon
+    ['angle', 'angle'],
+    ['len', 'len'],
+   */
   ['noise', 'noise'],
 ];
 
