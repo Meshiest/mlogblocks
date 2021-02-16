@@ -240,12 +240,10 @@ const MINDUSTRY_BINARY_OPS = [
   ['min', 'min'],
   ['max', 'max'],
 
-  ['atan2', 'atan2'],
-  ['dst', 'dst'],
-  /*//soon
-    ['angle', 'angle'],
-    ['len', 'len'],
-   */
+  //soon
+  ['angle', 'angle'],
+  ['len', 'len'],
+
   ['noise', 'noise'],
 ];
 
