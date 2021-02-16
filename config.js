@@ -194,6 +194,7 @@ const MINDUSTRY_DRAW_OPS = {
 
 const MINDUSTRY_JUMP_OPS = [
   ['==', 'equal'],
+  ['===', 'strictEqual'],
   ['not', 'notEqual'],
   ['<', 'lessThan'],
   ['<=', 'lessThanEq'],
@@ -203,6 +204,7 @@ const MINDUSTRY_JUMP_OPS = [
 
 const JUMPABLE_OPS = [
   'equal',
+  'strictEqual',
   'notEqual',
   'lessThan',
   'lessThanEq',
@@ -222,6 +224,7 @@ const MINDUSTRY_BINARY_OPS = [
   ['and', 'land'],
   ['not', 'notEqual'],
   ['==', 'equal'],
+  ['===', 'strictEqual'],
 
   ['<', 'lessThan'],
   ['<=', 'lessThanEq'],
