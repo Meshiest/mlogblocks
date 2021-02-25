@@ -4,6 +4,13 @@ A scratch-like visual editor for Mindustry's Logic Processors available at [http
 
 Uses [Google's Blocky](https://developers.google.com/blockly) with custom blocks and code generation.
 
+## Notes
+
+* Code is run from the top left.
+* Placing functions above your first line will cause the function code to run before the first line.
+* If you have functions and no `end` block at the end of your program, the functions will run after your code runs.
+* Recursion only works if you place the recursive function call in the return statement of the function. (See below)
+
 ## Features
 
 **Variables and Inline Operators**
