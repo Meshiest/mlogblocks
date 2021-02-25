@@ -2,6 +2,8 @@
 
 A scratch-like visual editor for Mindustry's Logic Processors available at [https://mlog.reheatedcake.io/](https://mlog.reheatedcake.io/).
 
+No need to download anything but the code you write!
+
 Uses [Google's Blocky](https://developers.google.com/blockly) with custom blocks and code generation.
 
 ## Notes
