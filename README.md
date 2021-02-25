@@ -39,5 +39,5 @@ Uses [Google's Blocky](https://developers.google.com/blockly) with custom blocks
 
 ## Screenshots
 
-[<img src="https://i.imgur.com/tu8jPOG.png">](https://i.imgur.com/tu8jPOG.png)
-[<img src="https://i.imgur.com/GGz0j2w.png">](https://i.imgur.com/GGz0j2w.png)
+[<img src="https://i.imgur.com/3iQa9ES.png">](https://i.imgur.com/3iQa9ES.png)
+[<img src="https://i.imgur.com/8PPVooc.png">](https://i.imgur.com/8PPVooc.png)
