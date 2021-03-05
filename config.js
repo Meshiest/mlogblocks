@@ -54,6 +54,10 @@ const MINDUSTRY_ACCESS = [
   'flag',
   'controlled',
   'commanded',
+  'controller',
+  'dead',
+  'size',
+  'boosting',
   'name',
   'config',
   'payloadCount',
@@ -133,6 +137,7 @@ const MINDUSTRY_CONTROL_TARGETS = [
   'configure',
   'shoot',
   'shootp',
+  'color',
 ].map(t => [t, t]);
 
 const MINDUSTRY_RADAR_TARGETS = [

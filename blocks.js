@@ -223,6 +223,7 @@ const CONTROL_TYPES = {
   configure: {inputs: ['TO']},
   shoot: {inputs: ['X', 'Y', 'SHOOT']},
   shootp: {inputs: ['UNIT', 'SHOOT']},
+  color: {inputs: ['R', 'G', 'B']},
 };
 
 Blockly.Blocks['mind_control'] = {
@@ -259,6 +260,9 @@ Blockly.Blocks['mind_control'] = {
       TO: 'to',
       X: 'x',
       Y: 'y',
+      R: 'r',
+      G: 'g',
+      B: 'b',
       UNIT: 'unit',
       SHOOT: 'shoot',
     };
@@ -311,6 +315,14 @@ Blockly.Mindustry['mind_control'] = function(block) {
       ['value', 'UNIT'],
       ['value', 'SHOOT'],
       ['raw', '0'],
+      ['raw', '0'],
+    ],
+    color: [
+      ['field', 'ACTION'],
+      ['value', 'TARGET'],
+      ['value', 'R'],
+      ['value', 'G'],
+      ['value', 'B'],
       ['raw', '0'],
     ],
   };
