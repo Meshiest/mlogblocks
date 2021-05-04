@@ -122,3 +122,45 @@ Blockly.Mindustry['controls_if'] = block => {
 };
 
 Blockly.Mindustry['controls_ifelse'] = Blockly.Mindustry['controls_if'];
+
+Blockly.Mindustry['logic_ternary'] = block => {
+  const label = Blockly.Mindustry.temp();
+  const returnVar = `__ternary${label}_return`;
+  const code = [];
+  const branchCode = [];
+
+  const condCode = Blockly.Mindustry.valueToCode(block, 'IF', 0);
+  const [condVar, condBefore] = Blockly.Mindustry.extractVar(condCode);
+
+  const thenCode = Blockly.Mindustry.valueToCode(block, 'THEN', 0);
+  const [thenVar, thenBefore] = Blockly.Mindustry.extractVar(thenCode);
+
+  const elseCode = Blockly.Mindustry.valueToCode(block, 'ELSE', 0);
+  const [elseVar, elseBefore] = Blockly.Mindustry.extractVar(elseCode);
+
+  return [[].concat(
+    // run the condition code
+    condBefore,
+    // jump to the condition label if true
+    [`ASM:JUMP __ternary${label} notEqual ${condVar} false`],
+    // otherwise run else/if false code
+    elseBefore,
+    [
+      // set the return variable to the else output
+      `set ${returnVar} ${elseVar}`,
+      `ASM:JUMP:ALWAYS __ternary${label}_end`,
+      // label for if true branch
+      `ASM:LABEL __ternary${label}`,
+    ],
+    // run the if true code
+    thenBefore,
+    [
+      // set the return variable to the if true output
+      `set ${returnVar} ${thenVar}`,
+      // end label
+      `ASM:LABEL __ternary${label}_end`,
+    ],
+    // final line is the variable id
+    returnVar,
+  ).join('\n'), 0];
+};
