@@ -11,6 +11,10 @@ const MINDUSTRY_ITEMS = [
   'pyratite',
 ];
 
+const MINDUSTRY_LOOKUP_TARGETS = [
+  'block', 'unit', 'item', 'liquid',
+].map(t => [t, t]);
+
 const MINDUSTRY_SELF = [
   'this',
   'unit',
@@ -245,7 +249,6 @@ const MINDUSTRY_BINARY_OPS = [
   ['min', 'min'],
   ['max', 'max'],
 
-  //soon
   ['angle', 'angle'],
   ['len', 'len'],
 
@@ -259,8 +262,11 @@ const MINDUSTRY_UNARY_OPS = [
   ['sqrt', 'sqrt'],
   ['rand', 'rand'],
   ['sin', 'sin'],
+  ['asin', 'asin'],
   ['cos', 'cos'],
+  ['acos', 'acos'],
   ['tan', 'tan'],
+  ['atan', 'atan'],
   ['log', 'log'],
   ['log10', 'log10'],
   ['flip', 'not'],

@@ -54,6 +54,11 @@
           <shadow type="var_block_text"><field name="VALUE">0</field></shadow>
         </value>
       </block>
+      <block type="mind_lookup">
+        <value name="INDEX">
+          <shadow type="var_block_text"><field name="VALUE">0</field></shadow>
+        </value>
+      </block>
       <block type="mind_op_set_binary">
         <value name="A"><shadow type="var_block_text"><field name="VALUE">a</field></shadow></value>
         <value name="B"><shadow type="var_block_text"><field name="VALUE">b</field></shadow></value>
@@ -161,15 +166,20 @@
       <block type="mind_jump_cond">
         <field name="LABEL">label</field>
         <field name="COND">notEqual</field>
-         <value name="ARG_A">
+        <value name="ARG_A">
           <shadow type="var_block_text"><field name="VALUE">x</field></shadow>
         </value>
-         <value name="ARG_B">
+        <value name="ARG_B">
           <shadow type="var_block_text"><field name="VALUE">false</field></shadow>
         </value>
       </block>
       <block type="mind_jump_label"><field name="LABEL">label</field></block>
       <block type="mind_end"></block>
+      <block type="mind_wait">
+        <value name="DURATION">
+          <shadow type="var_block_text"><field name="VALUE">0.5</field></shadow>
+        </value>
+      </block>
       <block type="controls_if">
         <value name="IF0">
           <block type="mind_op_var_binary">

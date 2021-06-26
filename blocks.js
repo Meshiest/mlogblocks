@@ -173,6 +173,31 @@ Blockly.Mindustry['mind_set'] = function(block) {
   );
 };
 
+Blockly.Blocks['mind_lookup'] = {
+  init: function() {
+    this.appendValueInput('INDEX')
+        .appendField(new Blockly.FieldTextInput('result'), 'DEST')
+        .appendField('= lookup')
+        .appendField(new Blockly.FieldDropdown(MINDUSTRY_LOOKUP_TARGETS), 'TYPE')
+        .appendField('#')
+        .setCheck(null);
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('block_variable');
+    this.setTooltip('');
+    //this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.Mindustry['mind_lookup'] = function(block) {
+  return Blockly.Mindustry.easyAssemble(block, 'lookup',
+    ['field', 'TYPE'],
+    ['value', 'INDEX'],
+    ['field', 'DEST'],
+  );
+};
+
 Blockly.Blocks['mind_get_link'] = {
   init: function() {
     this.appendValueInput('INDEX')
@@ -519,6 +544,27 @@ const makeAtom = (name, text, style, fn) => {
 }
 
 makeAtom('mind_end', 'end', 'block_control', block => 'end')
+
+Blockly.Blocks['mind_wait'] = {
+  init: function() {
+    this.appendValueInput('DURATION')
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('wait');
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('block_control');
+    this.setTooltip('');
+    //this.setHelpUrl('');
+  }
+};
+
+Blockly.Mindustry['mind_wait'] = block =>
+  Blockly.Mindustry.easyAssemble(block, 'wait',
+    ['value', 'DURATION'],
+  );
+
 
 Blockly.Blocks['mind_jump_label'] = {
   init: function() {
