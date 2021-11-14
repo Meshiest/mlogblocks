@@ -1,17 +1,26 @@
 Blockly.Mindustry = new Blockly.Generator('Mindustry');
 
 // Escape a string
-const escapeStr = str => str
-  .replace(/\\/g, '\\\\')
-  .replace(/"/g, '\\"');
+const escapeStr = str => str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
 Blockly.Mindustry.init = workspace => {
   Blockly.Mindustry._functions = [];
   Blockly.Mindustry._tempVars = 0;
+  if (!Blockly.Mindustry.variableDB_) {
+    Blockly.Mindustry.variableDB_ = new Blockly.Names(
+      Blockly.Mindustry.RESERVED_WORDS_
+    );
+  } else {
+    Blockly.Mindustry.variableDB_.reset();
+  }
+  Blockly.Mindustry.variableDB_.setVariableMap(workspace.getVariableMap());
 };
 
 Blockly.Mindustry.finish = code => {
-  const lines = code.split('\n').map(l => l.trim()).filter(l => l.length);
+  const lines = code
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length);
 
   // TODO: compiler optimizations can go here
   // - functions only invoked once can be spliced into the function call
@@ -25,23 +34,41 @@ Blockly.Mindustry.finish = code => {
   let reduced = 0;
   for (let i = 1; i < lines.length; i++) {
     // cut out needless ops before a jump
-    if (lines[i].startsWith('ASM:JUMP ') && lines[i-1].startsWith('op ')) {
-      const prevLine = lines[i - 1].match(/^op (?<op>equal|notEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/);
-      const curLine = lines[i].match(/^ASM:JUMP (?<label>[^ ]+) notEqual (?<tempVar>_temp\d+) false$/);
-      if (curLine && prevLine && curLine.groups.tempVar === prevLine.groups.tempVar) {
-        lines[i] = `ASM:JUMP ${curLine.groups.label} ${prevLine.groups.op} ${prevLine.groups.rest}`;
-        lines.splice(i-1, 1);
-        reduced ++;
+    if (lines[i].startsWith('ASM:JUMP ') && lines[i - 1].startsWith('op ')) {
+      const prevLine = lines[i - 1].match(
+        /^op (?<op>equal|notEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
+      );
+      const curLine = lines[i].match(
+        /^ASM:JUMP (?<label>[^ ]+) notEqual (?<tempVar>_temp\d+) false$/
+      );
+      if (
+        curLine &&
+        prevLine &&
+        curLine.groups.tempVar === prevLine.groups.tempVar
+      ) {
+        lines[
+          i
+        ] = `ASM:JUMP ${curLine.groups.label} ${prevLine.groups.op} ${prevLine.groups.rest}`;
+        lines.splice(i - 1, 1);
+        reduced++;
       }
 
-    // cut out sets with a temp when the temp was set the line before
-    } else if (lines[i].startsWith('set ') && lines[i-1].startsWith('op ')) {
-      const prevLine = lines[i - 1].match(/^op (?<op>\w+) (?<tempVar>_temp\d+) (?<rest>.+)/);
+      // cut out sets with a temp when the temp was set the line before
+    } else if (lines[i].startsWith('set ') && lines[i - 1].startsWith('op ')) {
+      const prevLine = lines[i - 1].match(
+        /^op (?<op>\w+) (?<tempVar>_temp\d+) (?<rest>.+)/
+      );
       const curLine = lines[i].match(/^set (?<var>.+) (?<tempVar>_temp\d+)$/);
-      if (curLine && prevLine && curLine.groups.tempVar === prevLine.groups.tempVar) {
-        lines[i] = `op ${prevLine.groups.op} ${curLine.groups.var} ${prevLine.groups.rest}`;
-        lines.splice(i-1, 1);
-        reduced ++;
+      if (
+        curLine &&
+        prevLine &&
+        curLine.groups.tempVar === prevLine.groups.tempVar
+      ) {
+        lines[
+          i
+        ] = `op ${prevLine.groups.op} ${curLine.groups.var} ${prevLine.groups.rest}`;
+        lines.splice(i - 1, 1);
+        reduced++;
       }
     }
   }
@@ -68,7 +95,14 @@ Blockly.Mindustry.finish = code => {
 
       // figure out which line the label pointed to
       const lineNum = typeof labels[label] === 'undefined' ? -1 : labels[label];
-      console.debug('[asm] inserting label', label, '->', lineNum, 'into jump at', i);
+      console.debug(
+        '[asm] inserting label',
+        label,
+        '->',
+        lineNum,
+        'into jump at',
+        i
+      );
 
       // create the new line
       let newLine = `jump ${lineNum} ${args.join(' ')}`;
@@ -76,23 +110,23 @@ Blockly.Mindustry.finish = code => {
         newLine = 'set @counter ' + lineNum;
       }
 
-
       // insert replace the old line
       lines.splice(i, 1, newLine);
     }
   }
 
   console.debug('[asm] compiled', lines.length, 'lines');
+  Blockly.Mindustry.variableDB_.reset();
 
   return lines.join('\n') + '\n';
 };
 
-Blockly.Mindustry.scrubNakedValue = function(line) {
+Blockly.Mindustry.scrubNakedValue = function (line) {
   return line + '\n';
 };
 
 Blockly.Mindustry.temp = () => {
-  return '_temp'+Blockly.Mindustry._tempVars++;
+  return '_temp' + Blockly.Mindustry._tempVars++;
 };
 
 Blockly.Mindustry.extractVar = code => {
@@ -106,11 +140,16 @@ Blockly.Mindustry.easyAssemble = (block, op, ...args) => {
   const before = [];
   const argVals = [];
   for (const [type, name] of args) {
-    let value = type === 'field'
-      ? block.getFieldValue(name) || '0'
-      : type === 'value'
+    let value =
+      type === 'field'
+        ? block.getFieldValue(name) || '0'
+        : type === 'value'
         ? Blockly.Mindustry.valueToCode(block, name, 0) || '0'
-        : type === 'raw' ? name : (()=>{throw new Error('invalid arg type in ' + op)})();
+        : type === 'raw'
+        ? name
+        : (() => {
+            throw new Error('invalid arg type in ' + op);
+          })();
 
     if (type === 'value') {
       const [valVar, valBefore] = Blockly.Mindustry.extractVar(value);
@@ -120,15 +159,17 @@ Blockly.Mindustry.easyAssemble = (block, op, ...args) => {
     argVals.push(value);
   }
 
-  const code = (before.length > 0 ? before.join('\n') + '\n' : '') +
-    op + ' ' +
+  const code =
+    (before.length > 0 ? before.join('\n') + '\n' : '') +
+    op +
+    ' ' +
     argVals.join(' ');
 
   return code;
-}
+};
 
 // concat statements together
-Blockly.Mindustry.scrub_ = function(block, code, opt_thisOnly) {
+Blockly.Mindustry.scrub_ = function (block, code, opt_thisOnly) {
   const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
   const nextCode = opt_thisOnly ? '' : Blockly.Mindustry.blockToCode(nextBlock);
   return code + '\n' + nextCode;

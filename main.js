@@ -4,9 +4,10 @@ const $$ = (q, el) => Array.from((el || document).querySelectorAll(q));
 // debounce fn
 function debounce(func, wait, immediate) {
   var timeout;
-  return function() {
-    var context = this, args = arguments;
-    var later = function() {
+  return function () {
+    var context = this,
+      args = arguments;
+    var later = function () {
       timeout = null;
       if (!immediate) func.apply(context, args);
     };
@@ -15,7 +16,7 @@ function debounce(func, wait, immediate) {
     timeout = setTimeout(later, wait);
     if (callNow) func.apply(context, args);
   };
-};
+}
 
 const resetCopy = debounce(el => el.classList.remove('copied'), 1000);
 const resetErrors = debounce(el => el.classList.remove('errors'), 2000);
@@ -42,8 +43,8 @@ const solarized = {
 function lighten(col, amt) {
   const num = parseInt(col.slice(1), 16);
   const r = Math.max(Math.min((num >> 16) + amt, 255), 0);
-  const b = Math.max(Math.min(((num >> 8) & 0x00FF) + amt, 255), 0);
-  const g = Math.max(Math.min((num & 0x0000FF) + amt, 255), 0);
+  const b = Math.max(Math.min(((num >> 8) & 0x00ff) + amt, 255), 0);
+  const g = Math.max(Math.min((num & 0x0000ff) + amt, 255), 0);
   const newColor = g | (b << 8) | (r << 16);
   return '#' + newColor.toString(16);
 }
@@ -66,18 +67,18 @@ function load() {
       startScale: 1.0,
       maxScale: 2,
       minScale: 0.2,
-      scaleSpeed: 1.2
+      scaleSpeed: 1.2,
     },
     move: {
-        scrollbars: true,
-        drag: true,
-        wheel: false,
+      scrollbars: true,
+      drag: true,
+      wheel: false,
     },
     grid: {
       spacing: 40,
       length: 4,
       colour: solarized.base03,
-      snap: false
+      snap: false,
     },
     theme: {
       blockStyles: {
@@ -90,13 +91,13 @@ function load() {
         block_unit: lazyColor(solarized.yellow),
       },
       categoryStyles: {
-        category_memory: {colour: solarized.blue},
-        category_output: {colour: solarized.red},
-        category_control: {colour: solarized.magenta},
-        category_loop: {colour: solarized.violet},
-        category_variable: {colour: solarized.cyan},
-        category_world: {colour: solarized.green},
-        category_unit: {colour: solarized.yellow},
+        category_memory: { colour: solarized.blue },
+        category_output: { colour: solarized.red },
+        category_control: { colour: solarized.magenta },
+        category_loop: { colour: solarized.violet },
+        category_variable: { colour: solarized.cyan },
+        category_world: { colour: solarized.green },
+        category_unit: { colour: solarized.yellow },
       },
       componentStyles: {
         workspaceBackgroundColour: '#000',
@@ -114,7 +115,7 @@ function load() {
       fontStyle: {
         family: 'monospace',
         weight: 'normal',
-        size: 12
+        size: 12,
       },
     },
   });
@@ -150,7 +151,10 @@ function load() {
     Blockly.Events.BLOCK_CHANGE,
     Blockly.Events.BLOCK_MOVE,
   ];
-  const autosave = debounce(() => localStorage.autosave = getCodeAsXml(), 500);
+  const autosave = debounce(
+    () => (localStorage.autosave = getCodeAsXml()),
+    500
+  );
   workspace.addChangeListener(e => {
     if (saveInducingEvents.includes(e.type)) {
       autosave();
@@ -170,7 +174,7 @@ function getCodeAsXml() {
   return Blockly.Xml.domToText(xml);
 }
 
-function loadCode(code, clear=true) {
+function loadCode(code, clear = true) {
   if (!code) return;
   if (clear) Blockly.mainWorkspace.clear();
 
@@ -248,15 +252,16 @@ function clickExport() {
   const name = prompt('Enter a file name', localStorage.lastName || 'project');
   if (typeof name === 'object') return;
   localStorage.lastName = name;
-  $('#download').href = 'data:text/xml;charset=utf-8,' + encodeURIComponent(getCodeAsXml());
+  $('#download').href =
+    'data:text/xml;charset=utf-8,' + encodeURIComponent(getCodeAsXml());
   $('#download').download = name + '.xml';
   $('#download').click();
 }
 
 function clickClear() {
   const workspace = Blockly.mainWorkspace;
-  if(confirm('Do you really want to clear all your code?')) {
-    workspace.clear()
+  if (confirm('Do you really want to clear all your code?')) {
+    workspace.clear();
   }
 }
 
@@ -264,8 +269,13 @@ function clickClear() {
 document.addEventListener('paste', e => {
   const pasteData = e.clipboardData.getData('Text');
 
-  if (!Blockly.selected && pasteData.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
-    if(shiftDown || confirm('Importing will clear workspace, are you sure?')) {
+  if (
+    !Blockly.selected &&
+    pasteData.startsWith(
+      '<xml xmlns="https://developers.google.com/blockly/xml">'
+    )
+  ) {
+    if (shiftDown || confirm('Importing will clear workspace, are you sure?')) {
       e.preventDefault();
       loadCode(pasteData, !shiftDown);
       navigator.clipboard.writeText(' ' + pasteData);

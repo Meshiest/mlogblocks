@@ -22,11 +22,16 @@ Blockly.Mindustry['procedures_defreturn'] = block => {
 };
 
 Blockly.Mindustry['procedures_defnoreturn'] =
-    Blockly.Mindustry['procedures_defreturn'];
+  Blockly.Mindustry['procedures_defreturn'];
 
 Blockly.Mindustry['procedures_callreturn'] = block => {
   const func = block.getFieldValue('NAME').replace(/ /g, '_');
-  return [Blockly.Mindustry['procedures_callnoreturn'](block) + '\n__returnVar' + func, 0];
+  return [
+    Blockly.Mindustry['procedures_callnoreturn'](block) +
+      '\n__returnVar' +
+      func,
+    0,
+  ];
 };
 
 Blockly.Mindustry['procedures_callnoreturn'] = block => {
@@ -36,9 +41,7 @@ Blockly.Mindustry['procedures_callnoreturn'] = block => {
   const lines = variables.flatMap((v, i) => {
     const varCode = Blockly.Mindustry.valueToCode(block, 'ARG' + i, 0);
     const [varName, varBefore] = Blockly.Mindustry.extractVar(varCode);
-    return varBefore.concat([
-      `set ${variables[i]} ${varName}`,
-    ]);
+    return varBefore.concat([`set ${variables[i]} ${varName}`]);
   });
 
   lines.push(
@@ -46,8 +49,8 @@ Blockly.Mindustry['procedures_callnoreturn'] = block => {
     Blockly.Mindustry._currFunc === func
       ? ''
       : `op add __popstack${func} @counter 1`,
-    `ASM:JUMP:ALWAYS __func_${func}`,
-  )
+    `ASM:JUMP:ALWAYS __func_${func}`
+  );
 
   return lines.join('\n');
 };
@@ -65,13 +68,13 @@ Blockly.Mindustry['procedures_ifreturn'] = block => {
   condBefore.push(
     `ASM:JUMP __ifreturn${label} notEqual ${condVar} false`,
     `ASM:JUMP:ALWAYS __ifreturnelse${label}`,
-    `ASM:LABEL __ifreturn${label}`,
+    `ASM:LABEL __ifreturn${label}`
   );
 
   if (block.hasReturnValue_) {
     condBefore.push(
       ...returnBefore,
-      `set __returnVar${Blockly.Mindustry._currFunc} ${returnVar}`,
+      `set __returnVar${Blockly.Mindustry._currFunc} ${returnVar}`
     );
   }
 
@@ -96,29 +99,30 @@ Blockly.Mindustry['controls_if'] = block => {
 
     code.push(
       ...condBefore,
-      `ASM:JUMP __if_${label}_${i} notEqual ${condVar} false`,
+      `ASM:JUMP __if_${label}_${i} notEqual ${condVar} false`
     );
 
     branchCode.push(
       `ASM:LABEL __if_${label}_${i}`,
       Blockly.Mindustry.statementToCode(block, 'DO' + i),
-      `ASM:JUMP:ALWAYS __if_${label}_end`,
+      `ASM:JUMP:ALWAYS __if_${label}_end`
     );
   }
 
   // the last jump is redundant as it would jump to the next line
   branchCode.pop();
 
-  return [].concat(
-    code,
-    block.getInput('ELSE')
-      ? Blockly.Mindustry.statementToCode(block, 'ELSE')
-      : [],
-    [`ASM:JUMP:ALWAYS __if_${label}_end`],
-    branchCode,
-    [`ASM:LABEL __if_${label}_end`],
-  ).join('\n');
-
+  return []
+    .concat(
+      code,
+      block.getInput('ELSE')
+        ? Blockly.Mindustry.statementToCode(block, 'ELSE')
+        : [],
+      [`ASM:JUMP:ALWAYS __if_${label}_end`],
+      branchCode,
+      [`ASM:LABEL __if_${label}_end`]
+    )
+    .join('\n');
 };
 
 Blockly.Mindustry['controls_ifelse'] = Blockly.Mindustry['controls_if'];
@@ -138,29 +142,34 @@ Blockly.Mindustry['logic_ternary'] = block => {
   const elseCode = Blockly.Mindustry.valueToCode(block, 'ELSE', 0);
   const [elseVar, elseBefore] = Blockly.Mindustry.extractVar(elseCode);
 
-  return [[].concat(
-    // run the condition code
-    condBefore,
-    // jump to the condition label if true
-    [`ASM:JUMP __ternary${label} notEqual ${condVar} false`],
-    // otherwise run else/if false code
-    elseBefore,
-    [
-      // set the return variable to the else output
-      `set ${returnVar} ${elseVar}`,
-      `ASM:JUMP:ALWAYS __ternary${label}_end`,
-      // label for if true branch
-      `ASM:LABEL __ternary${label}`,
-    ],
-    // run the if true code
-    thenBefore,
-    [
-      // set the return variable to the if true output
-      `set ${returnVar} ${thenVar}`,
-      // end label
-      `ASM:LABEL __ternary${label}_end`,
-    ],
-    // final line is the variable id
-    returnVar,
-  ).join('\n'), 0];
+  return [
+    []
+      .concat(
+        // run the condition code
+        condBefore,
+        // jump to the condition label if true
+        [`ASM:JUMP __ternary${label} notEqual ${condVar} false`],
+        // otherwise run else/if false code
+        elseBefore,
+        [
+          // set the return variable to the else output
+          `set ${returnVar} ${elseVar}`,
+          `ASM:JUMP:ALWAYS __ternary${label}_end`,
+          // label for if true branch
+          `ASM:LABEL __ternary${label}`,
+        ],
+        // run the if true code
+        thenBefore,
+        [
+          // set the return variable to the if true output
+          `set ${returnVar} ${thenVar}`,
+          // end label
+          `ASM:LABEL __ternary${label}_end`,
+        ],
+        // final line is the variable id
+        returnVar
+      )
+      .join('\n'),
+    0,
+  ];
 };
