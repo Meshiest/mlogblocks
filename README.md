@@ -4,7 +4,7 @@ A scratch-like visual editor for Mindustry's Logic Processors available at [http
 
 No need to download anything but the code you write!
 
-Uses [Google's Blocky](https://developers.google.com/blockly) with custom blocks and code generation.
+Uses [Google's Blockly](https://developers.google.com/blockly) with custom blocks and code generation.
 
 ## Notes
 
