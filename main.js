@@ -174,6 +174,36 @@ function getCodeAsXml() {
   return Blockly.Xml.domToText(xml);
 }
 
+function loadCodeFromFile(clear = true) {
+  // Create file input element
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.xml';
+  fileInput.style.display = 'none'; // Hide the actual button
+
+  fileInput.onchange = function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function() {
+      const code = reader.result;
+      // load the file
+      loadCode(code, clear);
+
+      // Remove the file input element from the DOM (to prevent lots of hidden buttons)
+      document.body.removeChild(fileInput);
+    };
+
+    reader.readAsText(file);
+  };
+
+  // Append the file input element to the body
+  document.body.appendChild(fileInput);
+
+  // Open the file input menu
+  fileInput.click();
+}
+
 function loadCode(code, clear = true) {
   if (!code) return;
   if (clear) Blockly.mainWorkspace.clear();
@@ -195,6 +225,11 @@ document.addEventListener('keydown', async e => {
     } else {
       clickSave();
     }
+  }
+
+  if (e.code === 'KeyO' && e.ctrlKey) {
+    e.preventDefault();
+    loadCodeFromFile(!e.shiftKey);
   }
 
   if (e.code === 'KeyE' && e.ctrlKey) {
