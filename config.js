@@ -331,6 +331,7 @@ const MINDUSTRY_LOCATE_BUILDINGS = [
 
 const MINDUSTRY_UNIT_CONTROL = {
   stop: [],
+  unbind: [],
   move: ['x', 'y'],
   flag: ['value'],
   approach: ['x', 'y', 'radius'],
