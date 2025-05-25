@@ -75,6 +75,14 @@ Blockly.Mindustry.finish = code => {
 
   console.debug('[asm] optimized out', reduced, 'lines');
 
+  // Remove `ASM:JUMP <VAR> notEqual true true`
+  for (let i = 0; i < lines.length; i++) {
+    if (/^ASM:JUMP .+? notEqual true true$/.test(lines[i])) {
+      lines.splice(i, 1);
+      i--;
+    }
+  }
+
   const labels = {};
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].startsWith('ASM:LABEL')) {
