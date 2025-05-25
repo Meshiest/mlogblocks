@@ -17,6 +17,7 @@ Blockly.Mindustry.init = workspace => {
 };
 
 Blockly.Mindustry.finish = code => {
+  console.log(code)
   const lines = code
     .split('\n')
     .map(l => l.trim())
@@ -107,7 +108,7 @@ Blockly.Mindustry.finish = code => {
       // create the new line
       let newLine = `jump ${lineNum} ${args.join(' ')}`;
       if (lines[i].startsWith('ASM:JUMP:ALWAYS')) {
-        newLine = 'set @counter ' + lineNum;
+        newLine = `jump ${lineNum} always true true`;
       }
 
       // insert replace the old line
