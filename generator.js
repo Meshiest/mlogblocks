@@ -36,7 +36,7 @@ Blockly.Mindustry.finish = code => {
     // cut out needless ops before a jump
     if (lines[i].startsWith('ASM:JUMP ') && lines[i - 1].startsWith('op ')) {
       const prevLine = lines[i - 1].match(
-        /^op (?<op>equal|notEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
+        /^op (?<op>equal|notEqual|strictEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
       );
       const curLine = lines[i].match(
         /^ASM:JUMP (?<label>[^ ]+) notEqual (?<tempVar>_temp\d+) false$/
