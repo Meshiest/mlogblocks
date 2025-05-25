@@ -216,8 +216,8 @@ Blockly.Mindustry['mind_lookup'] = function (block) {
     block,
     'lookup',
     ['field', 'TYPE'],
-    ['value', 'INDEX'],
-    ['field', 'DEST']
+    ['field', 'DEST'],
+    ['value', 'INDEX']
   );
 };
 
