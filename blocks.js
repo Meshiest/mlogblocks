@@ -119,6 +119,9 @@ Blockly.Blocks['mind_flush_draw'] = {
 Blockly.Mindustry['mind_flush_draw'] = block =>
   'drawflush ' + block.getFieldValue('VAR');
 
+Blockly.Mindustry['mind_raw'] = block =>
+  block.getFieldValue('VAR');
+
 Blockly.Blocks['mind_flush_print'] = {
   init: function () {
     this.appendDummyInput()
@@ -1166,4 +1169,18 @@ Blockly.Mindustry['loop_for'] = function (block) {
       `ASM:LABEL __loop${label}_end`,
     ])
     .join('\n');
+};
+
+Blockly.Blocks['mind_raw'] = {
+  init: function () {
+    this.appendDummyInput()
+      .setAlign(Blockly.ALIGN_RIGHT)
+      .appendField('insert raw MLog')
+      .appendField(new Blockly.FieldTextInput('raw'), 'VAR');
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('block_variable');
+    this.setTooltip('');
+  },
 };
