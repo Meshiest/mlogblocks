@@ -36,7 +36,7 @@ Blockly.Mindustry.finish = code => {
     // cut out needless ops before a jump
     if (lines[i].startsWith('ASM:JUMP ') && lines[i - 1].startsWith('op ')) {
       const prevLine = lines[i - 1].match(
-        /^op (?<op>equal|notEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
+        /^op (?<op>equal|notEqual|strictEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
       );
       const curLine = lines[i].match(
         /^ASM:JUMP (?<label>[^ ]+) notEqual (?<tempVar>_temp\d+) false$/
@@ -75,6 +75,14 @@ Blockly.Mindustry.finish = code => {
 
   console.debug('[asm] optimized out', reduced, 'lines');
 
+  // Remove `ASM:JUMP <VAR> notEqual true true`
+  for (let i = 0; i < lines.length; i++) {
+    if (/^ASM:JUMP .+? notEqual true true$/.test(lines[i])) {
+      lines.splice(i, 1);
+      i--;
+    }
+  }
+
   const labels = {};
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].startsWith('ASM:LABEL')) {
@@ -107,7 +115,7 @@ Blockly.Mindustry.finish = code => {
       // create the new line
       let newLine = `jump ${lineNum} ${args.join(' ')}`;
       if (lines[i].startsWith('ASM:JUMP:ALWAYS')) {
-        newLine = 'set @counter ' + lineNum;
+        newLine = `jump ${lineNum} always true true`;
       }
 
       // insert replace the old line
