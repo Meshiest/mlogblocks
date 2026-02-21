@@ -53,6 +53,26 @@ Blockly.Mindustry.finish = code => {
         reduced++;
       }
 
+      // fold comparison op into select condition
+    } else if (lines[i].startsWith('select ') && lines[i - 1].startsWith('op ')) {
+      const prevLine = lines[i - 1].match(
+        /^op (?<op>equal|notEqual|strictEqual|lessThan|lessThanEq|greaterThan|greaterThanEq) (?<tempVar>_temp\d+) (?<rest>.+)$/
+      );
+      const curLine = lines[i].match(
+        /^select (?<dest>[^ ]+) notEqual (?<tempVar>_temp\d+) false (?<rest>.+)$/
+      );
+      if (
+        curLine &&
+        prevLine &&
+        curLine.groups.tempVar === prevLine.groups.tempVar
+      ) {
+        lines[
+          i
+        ] = `select ${curLine.groups.dest} ${prevLine.groups.op} ${prevLine.groups.rest} ${curLine.groups.rest}`;
+        lines.splice(i - 1, 1);
+        reduced++;
+      }
+
       // cut out sets with a temp when the temp was set the line before
     } else if (lines[i].startsWith('set ') && lines[i - 1].startsWith('op ')) {
       const prevLine = lines[i - 1].match(

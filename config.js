@@ -389,6 +389,7 @@ const MINDUSTRY_BINARY_OPS = [
   ['/', 'div'],
   ['//', 'idiv'],
   ['%', 'mod'],
+  ['%%', 'emod'],
   ['^', 'pow'],
 
   ['and', 'land'],
@@ -403,6 +404,7 @@ const MINDUSTRY_BINARY_OPS = [
 
   ['<<', 'shl'],
   ['>>', 'shr'],
+  ['>>>', 'ushr'],
   ['or', 'or'],
   ['b-and', 'and'],
   ['xor', 'xor'],
@@ -411,15 +413,18 @@ const MINDUSTRY_BINARY_OPS = [
   ['max', 'max'],
 
   ['angle', 'angle'],
+  ['anglediff', 'angleDiff'],
   ['len', 'len'],
 
   ['noise', 'noise'],
+  ['logn', 'logn'],
 ];
 
 const MINDUSTRY_UNARY_OPS = [
   ['floor', 'floor'],
   ['ceil', 'ceil'],
   ['abs', 'abs'],
+  ['sign', 'sign'],
   ['sqrt', 'sqrt'],
   ['rand', 'rand'],
   ['sin', 'sin'],
@@ -428,6 +433,7 @@ const MINDUSTRY_UNARY_OPS = [
   ['acos', 'acos'],
   ['tan', 'tan'],
   ['atan', 'atan'],
+  ['round', 'round'],
   ['log', 'log'],
   ['log10', 'log10'],
   ['flip', 'not'],
