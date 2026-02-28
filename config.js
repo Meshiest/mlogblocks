@@ -69,6 +69,12 @@ const MINDUSTRY_ACCESS = [
   'config',
   'payloadCount',
   'payloadType',
+  'maxUnits',
+  'building',
+  'buildx',
+  'buildy',
+  'selectedBlock',
+  'selectedRotation',
 ];
 
 const MINDUSTRY_BLOCKS = {
