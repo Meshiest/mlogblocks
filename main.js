@@ -318,5 +318,134 @@ document.addEventListener('paste', e => {
   }
 });
 
+// Patch Blockly dropdown menus to support type-to-filter
+(function () {
+  var origHandleKeyEvent = Blockly.Menu.prototype.handleKeyEvent_;
+
+  Blockly.Menu.prototype.handleKeyEvent_ = function (e) {
+    if (!this.menuItems_.length) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // Tab selects highlighted item
+    if (e.keyCode === 9) {
+      var highlighted = this.highlightedItem_;
+      if (highlighted) highlighted.performAction();
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Backspace removes last typed char
+    if (e.keyCode === 8) {
+      if (this._searchBuffer && this._searchBuffer.length > 0) {
+        this._searchBuffer = this._searchBuffer.slice(0, -1);
+        this._applyFilter();
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      return;
+    }
+
+    // Escape clears filter first, then closes menu
+    if (e.keyCode === 27) {
+      if (this._searchBuffer) {
+        this._searchBuffer = '';
+        this._applyFilter();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+    }
+
+    // Printable character — add to search buffer
+    if (e.key && e.key.length === 1 && !e.shiftKey) {
+      if (!this._searchBuffer) this._searchBuffer = '';
+      this._searchBuffer += e.key.toLowerCase();
+      this._applyFilter();
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Default handling (arrows, enter, space, home, end)
+    origHandleKeyEvent.call(this, e);
+  };
+
+  Blockly.Menu.prototype._applyFilter = function () {
+    var items = this.menuItems_;
+    var query = this._searchBuffer || '';
+    var firstVisible = null;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var el = item.getElement();
+      if (!el) continue;
+
+      var text = el.textContent.toLowerCase();
+      if (!query || text.includes(query)) {
+        el.style.display = '';
+        item._filtered = false;
+        if (!firstVisible) firstVisible = item;
+      } else {
+        el.style.display = 'none';
+        item._filtered = true;
+      }
+    }
+
+    // If nothing matches, show the currently selected item as fallback
+    if (!firstVisible && this.selectedMenuItem_) {
+      var selEl = this.selectedMenuItem_.getElement();
+      if (selEl) {
+        selEl.style.display = '';
+        this.selectedMenuItem_._filtered = false;
+        firstVisible = this.selectedMenuItem_;
+      }
+    }
+
+    // Highlight first visible if current is hidden
+    if (firstVisible && (!this.highlightedItem_ || this.highlightedItem_._filtered)) {
+      this.setHighlighted(firstVisible);
+    }
+
+    this._updateSearchIndicator();
+  };
+
+  // Skip filtered items during arrow key navigation
+  Blockly.Menu.prototype.highlightHelper_ = function (a, b) {
+    a += b;
+    for (var c; (c = this.menuItems_[a]); a += b) {
+      if (c.isEnabled() && !c._filtered) {
+        this.setHighlighted(c);
+        break;
+      }
+    }
+  };
+
+  Blockly.Menu.prototype._updateSearchIndicator = function () {
+    var el = this.getElement();
+    if (!el) return;
+
+    var indicator = el.querySelector('.menu-search-indicator');
+    if (!this._searchBuffer) {
+      if (indicator) indicator.remove();
+      return;
+    }
+
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.className = 'menu-search-indicator';
+      el.insertBefore(indicator, el.firstChild);
+    }
+    indicator.textContent = this._searchBuffer;
+  };
+
+  // Clear search state when menu is disposed
+  var origDispose = Blockly.Menu.prototype.dispose;
+  Blockly.Menu.prototype.dispose = function () {
+    this._searchBuffer = '';
+    origDispose.call(this);
+  };
+})();
+
 document.addEventListener('DOMContentLoaded', load);
 /**/
