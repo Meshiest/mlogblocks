@@ -237,6 +237,18 @@ document.addEventListener('keydown', async e => {
     clickExport();
   }
 
+  if (e.code === 'KeyV' && e.ctrlKey && e.shiftKey) {
+    e.preventDefault();
+    try {
+      const text = (await navigator.clipboard.readText()).trim();
+      if (text.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
+        loadCode(text, false);
+      }
+    } catch (err) {
+      console.error('[paste] failed to read clipboard', err);
+    }
+  }
+
   if (e.code === 'Delete' && e.shiftKey && e.ctrlKey) {
     e.preventDefault();
     clickClear();
@@ -300,9 +312,9 @@ function clickClear() {
   }
 }
 
-// when you paste, render the image on the canvas
+// when you paste, import xml if it looks like blockly xml
 document.addEventListener('paste', e => {
-  const pasteData = e.clipboardData.getData('Text');
+  const pasteData = e.clipboardData.getData('Text').trim();
 
   if (
     !Blockly.selected &&
@@ -310,10 +322,9 @@ document.addEventListener('paste', e => {
       '<xml xmlns="https://developers.google.com/blockly/xml">',
     )
   ) {
-    if (shiftDown || confirm('Importing will clear workspace, are you sure?')) {
+    if (confirm('Importing will clear workspace, are you sure?')) {
       e.preventDefault();
-      loadCode(pasteData, !shiftDown);
-      navigator.clipboard.writeText(' ' + pasteData);
+      loadCode(pasteData, true);
     }
   }
 });
