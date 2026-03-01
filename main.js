@@ -153,7 +153,7 @@ function load() {
   ];
   const autosave = debounce(
     () => (localStorage.autosave = getCodeAsXml()),
-    500
+    500,
   );
   workspace.addChangeListener(e => {
     if (saveInducingEvents.includes(e.type)) {
@@ -181,11 +181,11 @@ function loadCodeFromFile(clear = true) {
   fileInput.accept = '.xml';
   fileInput.style.display = 'none'; // Hide the actual button
 
-  fileInput.onchange = function(event) {
+  fileInput.onchange = function (event) {
     const file = event.target.files[0];
     const reader = new FileReader();
 
-    reader.onload = function() {
+    reader.onload = function () {
       const code = reader.result;
       // load the file
       loadCode(code, clear);
@@ -307,7 +307,7 @@ document.addEventListener('paste', e => {
   if (
     !Blockly.selected &&
     pasteData.startsWith(
-      '<xml xmlns="https://developers.google.com/blockly/xml">'
+      '<xml xmlns="https://developers.google.com/blockly/xml">',
     )
   ) {
     if (shiftDown || confirm('Importing will clear workspace, are you sure?')) {

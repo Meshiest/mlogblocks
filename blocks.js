@@ -439,18 +439,93 @@ Blockly.Mindustry['mind_radar'] = block =>
     ['field', 'DEST']
   );
 
+const ICON_SIZE = 18;
+
 const globalHelper = (name, items, color = 'block_variable') => {
+  const iconGen = ICON_URL[name];
+
   Blockly.Blocks['global_' + name] = {
     init: function () {
-      this.appendDummyInput().appendField(
-        new Blockly.FieldDropdown(items.map(i => ['@' + i, '@' + i])),
-        'NAME'
+      const input = this.appendDummyInput();
+      const block = this;
+
+      // Add icon on the block (before dropdown)
+      if (iconGen) {
+        block._iconField = new Blockly.FieldImage(
+          iconGen(items[0]), ICON_SIZE, ICON_SIZE, ''
+        );
+        var origInitView = block._iconField.initView;
+        block._iconField.initView = function () {
+          origInitView.call(this);
+          if (this.imageElement_) {
+            this.imageElement_.style.filter =
+              'drop-shadow(0 0 1px white) drop-shadow(1px 1px 2px rgba(0,0,0,0.7))';
+            this.imageElement_.style.imageRendering = 'pixelated';
+          }
+        };
+        input.appendField(block._iconField);
+      }
+
+      const dropdown = new Blockly.FieldDropdown(
+        () => items.map(i => ['@' + i, '@' + i])
       );
+
+      if (iconGen) {
+        // Sync block icon when dropdown value changes
+        dropdown.setValidator(function (newValue) {
+          var itemName = newValue.replace(/^@/, '');
+          if (block._iconField) {
+            block._iconField.setValue(iconGen(itemName));
+          }
+          return newValue;
+        });
+
+        // Add icons to dropdown menu items
+        dropdown.dropdownCreate_ = function () {
+          var menu = new Blockly.Menu();
+          menu.setRole(Blockly.utils.aria.Role.LISTBOX);
+          var options = this.getOptions(false);
+          this.selectedMenuItem_ = null;
+          for (var i = 0; i < options.length; i++) {
+            var label = options[i][0];
+            var value = options[i][1];
+            var content;
+            if (i < items.length) {
+              content = document.createElement('span');
+              content.style.display = 'flex';
+              content.style.alignItems = 'center';
+              content.style.gap = '6px';
+              var img = document.createElement('img');
+              img.src = iconGen(items[i]);
+              img.width = ICON_SIZE;
+              img.height = ICON_SIZE;
+              img.className = 'dropdown-icon';
+              img.onerror = function () { this.style.display = 'none'; };
+              content.appendChild(img);
+              var text = document.createElement('span');
+              text.textContent = label;
+              content.appendChild(text);
+            } else {
+              content = label;
+            }
+            var menuItem = new Blockly.MenuItem(content, value);
+            menuItem.setRole(Blockly.utils.aria.Role.OPTION);
+            menuItem.setRightToLeft(this.sourceBlock_.RTL);
+            menuItem.setCheckable(true);
+            menu.addChild(menuItem);
+            menuItem.setChecked(value == this.value_);
+            if (value == this.value_) this.selectedMenuItem_ = menuItem;
+            menuItem.onAction(this.handleMenuActionEvent_, this);
+          }
+          return menu;
+        };
+      }
+
+      input.appendField(dropdown, 'NAME');
       this.setInputsInline(true);
       this.setOutput(true, null);
       this.setStyle(color);
       this.setTooltip('');
-      //this.setHelpUrl('http://www.example.com/');
     },
   };
 
