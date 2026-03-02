@@ -213,6 +213,35 @@ function loadCode(code, clear = true) {
 }
 
 let shiftDown = false;
+const multiSelection = new Set(); // block IDs for multi-select
+let multiClipboard = null; // array of toCopyData() results for multi-paste
+
+function getMultiSelectedBlocks() {
+  var workspace = Blockly.mainWorkspace;
+  var blocks = [];
+  multiSelection.forEach(function (id) {
+    var block = workspace.getBlockById(id);
+    if (block) blocks.push(block);
+  });
+  return blocks;
+}
+
+function clearMultiSelection() {
+  getMultiSelectedBlocks().forEach(function (block) {
+    block.removeSelect();
+  });
+  multiSelection.clear();
+}
+
+function addToMultiSelection(block) {
+  multiSelection.add(block.id);
+  block.addSelect();
+}
+
+function removeFromMultiSelection(block) {
+  multiSelection.delete(block.id);
+  block.removeSelect();
+}
 
 // keybinds
 document.addEventListener('keydown', async e => {
@@ -237,24 +266,12 @@ document.addEventListener('keydown', async e => {
     clickExport();
   }
 
-  if (e.code === 'KeyV' && e.ctrlKey && e.shiftKey) {
-    e.preventDefault();
-    try {
-      const text = (await navigator.clipboard.readText()).trim();
-      if (text.startsWith('<xml xmlns="https://developers.google.com/blockly/xml">')) {
-        loadCode(text, false);
-      }
-    } catch (err) {
-      console.error('[paste] failed to read clipboard', err);
-    }
-  }
-
   if (e.code === 'Delete' && e.shiftKey && e.ctrlKey) {
     e.preventDefault();
     clickClear();
   }
 
-  if (!Blockly.selected && !workspace.keyboardAccessibilityMode) {
+  if (!Blockly.selected && multiSelection.size === 0 && !workspace.keyboardAccessibilityMode) {
     for (let i = 0; i < 7; i++) {
       if (e.key === i + 1 + '') {
         workspace.getToolbox().selectItemByPosition(i);
@@ -312,20 +329,74 @@ function clickClear() {
   }
 }
 
-// when you paste, import xml if it looks like blockly xml
+// Unified paste handler: XML import from system clipboard, or internal clipboard paste
 document.addEventListener('paste', e => {
+  var workspace = Blockly.mainWorkspace;
+  if (workspace.options.readOnly || Blockly.Gesture.inProgress()) return;
+
   const pasteData = e.clipboardData.getData('Text').trim();
 
   if (
-    !Blockly.selected &&
     pasteData.startsWith(
       '<xml xmlns="https://developers.google.com/blockly/xml">',
     )
   ) {
-    if (confirm('Importing will clear workspace, are you sure?')) {
-      e.preventDefault();
-      loadCode(pasteData, true);
+    // XML import from system clipboard
+    e.preventDefault();
+    var before = new Set(workspace.getAllBlocks(false).map(function (b) { return b.id; }));
+    Blockly.Events.disable();
+    try {
+      loadCode(pasteData, false);
+    } finally {
+      Blockly.Events.enable();
     }
+    Blockly.Events.setGroup(true);
+    var offset = Blockly.SNAP_RADIUS || 20;
+    clearMultiSelection();
+    var allBlocks = workspace.getAllBlocks(false);
+    for (var i = 0; i < allBlocks.length; i++) {
+      var block = allBlocks[i];
+      if (!before.has(block.id)) {
+        if (!block.getParent()) {
+          block.moveBy(offset, -offset);
+          addToMultiSelection(block);
+          Blockly.selected = block;
+        }
+        if (!block.isShadow()) {
+          Blockly.Events.fire(new Blockly.Events.BlockCreate(block));
+        }
+      }
+    }
+    Blockly.Events.setGroup(false);
+  } else if (multiClipboard && multiClipboard.length > 1) {
+    // Internal multi-block paste
+    e.preventDefault();
+    Blockly.Events.setGroup(true);
+    clearMultiSelection();
+    var offset = Blockly.SNAP_RADIUS || 20;
+    multiClipboard.forEach(function (data) {
+      var xml = data.xml.cloneNode(true);
+      Blockly.Events.disable();
+      var block;
+      try {
+        block = Blockly.Xml.domToBlock(xml, workspace);
+      } finally {
+        Blockly.Events.enable();
+      }
+      var x = parseInt(xml.getAttribute('x'), 10) || 0;
+      var y = parseInt(xml.getAttribute('y'), 10) || 0;
+      block.moveBy(x + offset, y - offset);
+      if (Blockly.Events.isEnabled() && !block.isShadow()) {
+        Blockly.Events.fire(new Blockly.Events.BlockCreate(block));
+      }
+      addToMultiSelection(block);
+      Blockly.selected = block;
+    });
+    Blockly.Events.setGroup(false);
+  } else if (Blockly.clipboardXml_) {
+    // Internal single-block paste
+    e.preventDefault();
+    Blockly.paste();
   }
 });
 
@@ -455,6 +526,225 @@ document.addEventListener('paste', e => {
   Blockly.Menu.prototype.dispose = function () {
     this._searchBuffer = '';
     origDispose.call(this);
+  };
+})();
+
+// Multi-block selection support
+(function () {
+  // --- Patch BlockSvg.prototype.select ---
+  var origSelect = Blockly.BlockSvg.prototype.select;
+  Blockly.BlockSvg.prototype.select = function () {
+    if (this.isShadow() && this.getParent()) {
+      this.getParent().select();
+      return;
+    }
+    if (this.isInFlyout || this.workspace.keyboardAccessibilityMode) {
+      origSelect.call(this);
+      return;
+    }
+
+    if (shiftDown) {
+      // Shift-click: toggle this block in/out of multi-selection
+      if (multiSelection.has(this.id)) {
+        removeFromMultiSelection(this);
+        if (Blockly.selected === this) {
+          Blockly.selected = null;
+          var remaining = getMultiSelectedBlocks();
+          if (remaining.length > 0) {
+            Blockly.selected = remaining[remaining.length - 1];
+          }
+        }
+      } else {
+        // First shift-click: also add the previously single-selected block
+        if (Blockly.selected && !multiSelection.has(Blockly.selected.id)) {
+          addToMultiSelection(Blockly.selected);
+        }
+        addToMultiSelection(this);
+        Blockly.selected = this;
+      }
+    } else if (multiSelection.has(this.id)) {
+      // Clicking an already multi-selected block: keep selection, just update primary
+      Blockly.selected = this;
+    } else {
+      // Normal click: clear multi-selection, do standard single select
+      clearMultiSelection();
+      origSelect.call(this);
+      multiSelection.add(this.id);
+    }
+  };
+
+  // --- Patch BlockSvg.prototype.unselect ---
+  var origUnselect = Blockly.BlockSvg.prototype.unselect;
+  Blockly.BlockSvg.prototype.unselect = function () {
+    multiSelection.delete(this.id);
+    origUnselect.call(this);
+  };
+
+  // --- Patch Gesture.prototype.doWorkspaceClick_ ---
+  var origDoWorkspaceClick = Blockly.Gesture.prototype.doWorkspaceClick_;
+  Blockly.Gesture.prototype.doWorkspaceClick_ = function (a) {
+    if (!(a.shiftKey && this.creatorWorkspace_.keyboardAccessibilityMode)) {
+      clearMultiSelection();
+    }
+    origDoWorkspaceClick.call(this, a);
+  };
+
+  // --- Re-register Delete shortcut ---
+  Blockly.ShortcutRegistry.registry.register({
+    name: Blockly.ShortcutItems.names.DELETE,
+    preconditionFn: function (workspace) {
+      return !workspace.options.readOnly && multiSelection.size > 0;
+    },
+    callback: function (workspace, e) {
+      e.preventDefault();
+      if (Blockly.Gesture.inProgress()) return false;
+      Blockly.Events.setGroup(true);
+      var blocks = getMultiSelectedBlocks();
+      Blockly.selected = null;
+      multiSelection.clear();
+      blocks.forEach(function (block) {
+        if (block.isDeletable() && !block.workspace.isFlyout) {
+          block.dispose(true, true);
+        }
+      });
+      Blockly.Events.setGroup(false);
+      return true;
+    },
+  }, true);
+
+  // --- Re-register Copy shortcut ---
+  Blockly.ShortcutRegistry.registry.register({
+    name: Blockly.ShortcutItems.names.COPY,
+    preconditionFn: function (workspace) {
+      return !workspace.options.readOnly &&
+        !Blockly.Gesture.inProgress() &&
+        multiSelection.size > 0;
+    },
+    callback: function () {
+      Blockly.hideChaff();
+      var blocks = getMultiSelectedBlocks().filter(function (b) {
+        return b.isDeletable() && b.isMovable();
+      });
+      if (blocks.length === 0) return false;
+      if (blocks.length === 1) {
+        Blockly.copy(blocks[0]);
+        multiClipboard = null;
+      } else {
+        multiClipboard = blocks.map(function (block) {
+          return block.toCopyData();
+        });
+        Blockly.copy(blocks[blocks.length - 1]);
+      }
+      return true;
+    },
+  }, true);
+
+  // --- Re-register Cut shortcut ---
+  Blockly.ShortcutRegistry.registry.register({
+    name: Blockly.ShortcutItems.names.CUT,
+    preconditionFn: function (workspace) {
+      return !workspace.options.readOnly &&
+        !Blockly.Gesture.inProgress() &&
+        multiSelection.size > 0;
+    },
+    callback: function () {
+      var blocks = getMultiSelectedBlocks().filter(function (b) {
+        return b.isDeletable() && b.isMovable() && !b.workspace.isFlyout;
+      });
+      if (blocks.length === 0) return false;
+      // Copy
+      if (blocks.length === 1) {
+        Blockly.copy(blocks[0]);
+        multiClipboard = null;
+      } else {
+        multiClipboard = blocks.map(function (block) {
+          return block.toCopyData();
+        });
+        Blockly.copy(blocks[blocks.length - 1]);
+      }
+      // Delete
+      Blockly.Events.setGroup(true);
+      Blockly.selected = null;
+      multiSelection.clear();
+      blocks.forEach(function (block) {
+        block.dispose(true, true);
+      });
+      Blockly.Events.setGroup(false);
+      return true;
+    },
+  }, true);
+
+  // --- Re-register Paste shortcut ---
+  // Always returns false so the browser fires a paste event,
+  // which is handled by the unified paste handler above.
+  Blockly.ShortcutRegistry.registry.register({
+    name: Blockly.ShortcutItems.names.PASTE,
+    preconditionFn: function () { return false; },
+    callback: function () { return false; },
+  }, true);
+
+  // --- Patch BlockDragger for multi-drag ---
+  var origStartBlockDrag = Blockly.BlockDragger.prototype.startBlockDrag;
+  Blockly.BlockDragger.prototype.startBlockDrag = function (a, b) {
+    this._multiDragFollowers = [];
+    if (multiSelection.has(this.draggingBlock_.id) && multiSelection.size > 1) {
+      var dragId = this.draggingBlock_.id;
+      var blocks = getMultiSelectedBlocks();
+      for (var i = 0; i < blocks.length; i++) {
+        if (blocks[i].id !== dragId) {
+          this._multiDragFollowers.push({
+            block: blocks[i],
+            startXY: blocks[i].getRelativeToSurfaceXY(),
+          });
+        }
+      }
+    }
+    origStartBlockDrag.call(this, a, b);
+  };
+
+  // Move followers visually during drag
+  var origDragBlock = Blockly.BlockDragger.prototype.dragBlock;
+  Blockly.BlockDragger.prototype.dragBlock = function (a, b) {
+    origDragBlock.call(this, a, b);
+    var followers = this._multiDragFollowers;
+    if (followers && followers.length > 0) {
+      var delta = this.pixelsToWorkspaceUnits_(b);
+      for (var i = 0; i < followers.length; i++) {
+        var f = followers[i];
+        if (f.block.workspace) {
+          f.block.translate(
+            f.startXY.x + delta.x,
+            f.startXY.y + delta.y,
+          );
+        }
+      }
+    }
+  };
+
+  var origEndBlockDrag = Blockly.BlockDragger.prototype.endBlockDrag;
+  Blockly.BlockDragger.prototype.endBlockDrag = function (a, b) {
+    var startXY = this.startXY_;
+    var followers = this._multiDragFollowers || [];
+    // Save event group so follower moves share the same undo group
+    var group = Blockly.Events.getGroup();
+    origEndBlockDrag.call(this, a, b);
+
+    if (followers.length > 0 && this.draggingBlock_.workspace) {
+      var endXY = this.draggingBlock_.getRelativeToSurfaceXY();
+      var dx = endXY.x - startXY.x;
+      var dy = endXY.y - startXY.y;
+      if (dx !== 0 || dy !== 0) {
+        Blockly.Events.setGroup(group);
+        followers.forEach(function (f) {
+          if (f.block.workspace) {
+            // Reset visual position before moveBy to avoid double-movement
+            f.block.translate(f.startXY.x, f.startXY.y);
+            f.block.moveBy(dx, dy);
+          }
+        });
+        Blockly.Events.setGroup(false);
+      }
+    }
   };
 })();
 
